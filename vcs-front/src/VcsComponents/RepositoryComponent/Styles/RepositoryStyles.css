@@ -1,0 +1,119 @@
+.reset-btn{
+    width:22%;
+    padding: 8px;
+    color:black;
+    text-decoration: none;
+    display:inline-block;
+    background: transparent;
+    border: 1px solid red;
+    border-radius: 3px;
+    text-align: center;
+    margin-left: 2%;
+    transition: all 0.3s ease;
+}
+
+.reset-btn:hover{
+    width:22%;
+    padding: 8px;
+    color:white;
+    text-decoration: none;
+    display:inline-block;
+    background: rgb(243, 44, 44);
+    border: 1px solid red;
+    border-radius: 3px;
+    text-align: center;
+    margin-left: 2%;
+    transition: all 0.3s ease;
+}
+
+.login-btn{
+    width:50%;
+    padding: 8px;
+    color:black;
+    text-decoration: none;
+    display:inline-block;
+    background: transparent;
+    border: 1px solid black;
+    border-radius: 3px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.login-btn:enabled{
+    background: #20c997;
+    transition: all 0.3s ease;
+    background-size: 200% 200%;
+    font-weight: bold;
+    letter-spacing: 2px;
+    border:1.5px solid black;
+
+}
+
+.bg-default {
+    background-color: #172b4d !important;
+}
+
+.code-bg
+{
+    background-color: #36454F !important;
+}
+
+.commit-bg
+{
+    background-color: #16273a !important;
+}
+
+.bg-dimmed-approve{
+    background: white !important;
+    transition: all 0.3s ease-out;
+    color:rgb(83, 180, 93) !important;
+}
+
+.bg-dimmed-approve:hover {
+    background: rgb(83, 180, 93) !important;
+    color: #fff !important;
+}
+.bg-dimmed-decline{
+    background: white !important;
+    transition: all 0.3s ease-out;
+    color:rgb(224, 84, 84) !important;
+}
+.bg-dimmed-decline:hover{
+    background: rgb(224, 84, 84) !important;
+    color: #fff !important;
+}
+
+.table-responsive {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+}
+
+.table-dark {
+    color: #f8f9fe;
+    background-color: #172b4d;
+}
+
+.table-dark th,
+.table-dark td,
+.table-dark thead th {
+    border-color: #1f3a68;
+}
+
+.table .thead-dark th {
+    color: #4d7bca;
+    background-color: #1c345d;
+}
+
+.card .table {
+    margin-bottom: 0;
+}
+
+.card .table td,
+.card .table th,
+.card .table tr {
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+}

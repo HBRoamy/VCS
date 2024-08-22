@@ -1,5 +1,6 @@
 ﻿using VCS_API.Extensions;
 using VCS_API.Models;
+using VCS_API.Models.RequestModels;
 using VCS_API.Repositories;
 using VCS_API.Services.Interfaces;
 
@@ -28,7 +29,14 @@ namespace VCS_API.Services
                 var baseCommitWithContent = await GetContentfulCommitAsync(repoName,parentBranch, baseCommitHash, commitRepo);
                 // Fetch head, if its empty, dont compare texts
                 var isFirstCommit = string.IsNullOrEmpty(await FetchHead(repoName, branchName));
-                if(!isFirstCommit && baseCommitWithContent?.Content?.Trim('\r').Trim('\n') == commitEntity.Content) throw new InvalidOperationException("Nothing new found that could be committed.");
+                if (!isFirstCommit)
+                {
+                    var baseContent = baseCommitWithContent?.Content?.Replace("\r\n", "\n").Trim();
+                    var newContent = commitEntity.Content?.Replace("\r\n", "\n").Trim();
+
+                    if (baseContent == newContent)
+                        throw new InvalidOperationException("Nothing new found that could be committed.");
+                }
             }
 #pragma warning restore CS8604 // Possible null reference argument.
 
@@ -51,9 +59,9 @@ namespace VCS_API.Services
             return await commitRepo.GetCommittedContentByHash(repoName, branchName,commitHash);
         }
 
-        public async Task<CommitEntity?> GetContentfulCommitAsync(string repoName, string branchName, string commitHash)
+        public async Task<CommitEntity?> GetContentfulCommitAsync(CodeRequest request)
         {
-            return await new CommitRepository(repoName, branchName).GetCommittedContentByHash(repoName, branchName, commitHash);
+            return await new CommitRepository(request?.RepoName, request?.BranchName).GetCommittedContentByHash(request?.RepoName, request?.BranchName, request?.CommitHash);
         }
 
         public async Task<string?> GetLatestCommitHashFromBranch(string branchName, string repoName)

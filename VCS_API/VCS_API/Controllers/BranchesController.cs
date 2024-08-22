@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using VCS_API.Extensions;
 using VCS_API.Models;
 using VCS_API.Models.RequestModels;
+using VCS_API.Models.ResponseModels;
 using VCS_API.Services;
 using VCS_API.Services.Interfaces;
 

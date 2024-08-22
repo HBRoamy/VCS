@@ -1,6 +1,8 @@
 ﻿using System.Text;
 using VCS_API.Extensions;
 using VCS_API.Models;
+using VCS_API.Models.RequestModels;
+using VCS_API.Models.ResponseModels;
 using VCS_API.Repositories.Interfaces;
 using VCS_API.Services.Interfaces;
 
@@ -64,7 +66,7 @@ namespace VCS_API.Services
             var isRootBranch = string.Equals(newBranch.Name, Constants.Constants.MasterBranchName, StringComparison.OrdinalIgnoreCase);
             if (!isRootBranch)
             {
-                var parentBranchExists = await IsBranchPresentInRepo(newBranch.ParentBranchName, newBranch.RepoName);
+                var parentBranchExists = await IsBranchPresentInRepoAsync(newBranch.ParentBranchName, newBranch.RepoName);
                 if (!parentBranchExists)
                 {
                     throw new ArgumentException("Parent Branch does not exist.", newBranch.ParentBranchName);
@@ -80,7 +82,7 @@ namespace VCS_API.Services
             return true;
         }
 
-        public async Task<bool> IsBranchPresentInRepo(string branch, string repo)
+        public async Task<bool> IsBranchPresentInRepoAsync(string branch, string repo)
         {
             if (string.IsNullOrWhiteSpace(repo) || string.IsNullOrWhiteSpace(branch)) return false;
 
@@ -108,6 +110,26 @@ namespace VCS_API.Services
             }
 
             return result;
+        }
+
+        public async Task<CodeResponse> GetContentfulBranch(CodeRequest request)
+        {
+            if(!await IsBranchPresentInRepoAsync(request.BranchName, request.RepoName))
+            {
+                throw new InvalidDataException("Repo or branch not present");
+            }
+
+            var commit = await commitService.GetContentfulCommitAsync(request) ?? throw new InvalidDataException("Commit was empty");
+
+            return new CodeResponse
+            {
+                RepoName = commit.RepoName,
+                BranchName = commit.BranchName,
+                Hash = commit.Hash,
+                Message = commit.Message,
+                Timestamp = commit.Timestamp,
+                Content = commit.Content
+            };
         }
 
         public async Task<int> DeleteAllBranchesIn(string? repoName)

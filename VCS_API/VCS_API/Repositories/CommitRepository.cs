@@ -105,7 +105,10 @@ namespace VCS_API.Repositories
 
         public async Task<CommitEntity?> GetCommittedContentByHash(string repoName, string branchName, string? commitHash)
         {
-            if (string.IsNullOrWhiteSpace(commitHash)) return null;
+            if (string.IsNullOrWhiteSpace(commitHash))
+            {
+                commitHash = (await FetchHead(repoName, branchName))?.GetColumns().FirstOrDefault();
+            }
             var changePath = Path.Combine("DataWarehouse", "Commits", $"{repoName}{Constants.Constants.ItemAddressDelimiter}{branchName}", "Changes", commitHash + ".txt");
             var foundCommit = FindCommit(repoName, branchName, commitHash);
 
@@ -113,7 +116,7 @@ namespace VCS_API.Repositories
 
             var commitedContent = await File.ReadAllTextAsync(changePath);
 
-            if (string.IsNullOrWhiteSpace(commitedContent)) return null;
+            if (string.IsNullOrWhiteSpace(commitedContent)) commitedContent = string.Empty;
             foundCommit.Content = commitedContent;
 
             return foundCommit;

@@ -122,6 +122,31 @@ namespace VCS_API.Controllers
             return BadRequest();
         }
 
+        [HttpGet("{repoName}/{branchName}")]
+        public async Task<ActionResult<CodeResponse>> GetBranchCode(string repoName, string branchName, [FromQuery] string? commitHash)
+        {
+            if (repoName.IsNullOrEmpty() || branchName.IsNullOrEmpty())
+            {
+                return BadRequest("Commit doesn't exist");
+            }
+
+            try
+            {
+                var response = await branchService.GetContentfulBranch(new CodeRequest
+                {
+                    RepoName = repoName,
+                    BranchName = branchName,
+                    CommitHash = commitHash
+                });
+
+                return response;
+            }
+            catch (Exception)
+            {
+                return BadRequest("Check your code request for corrections.");
+            }
+        }
+
         [HttpDelete(Constants.Constants.RepositoryName)]
         public async Task<ActionResult> DeleteRepository(string repoName)
         {
