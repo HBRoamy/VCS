@@ -1,4 +1,4 @@
-using VCS_API.Helpers;
+using VCS_API.Middlewares;
 using VCS_API.Repositories;
 using VCS_API.Repositories.Interfaces;
 using VCS_API.Services;
@@ -34,5 +34,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseMiddleware<RequestTimingMiddleware>();
 
 app.Run();

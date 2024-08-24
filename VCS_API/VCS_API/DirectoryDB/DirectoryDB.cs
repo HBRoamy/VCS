@@ -6,26 +6,33 @@ namespace VCS_API.DirectoryDB
 {
     public static class DirectoryDB //Inherits IDirectoryValidator and IRepo
     {
-        public static async Task WriteToFileAsync(string? filePath, string? content, bool append = true, bool canCreateDirectory = false)// enter false for overwriting the file
+        public static async Task WriteToFileAsync(string? filePath, string? content, bool append = true, bool canCreateDirectory = false)// enter append:false for overwriting the file
         {
             Validations.ThrowIfNullOrWhiteSpace(filePath);
 
-            if(!File.Exists(filePath) && !canCreateDirectory)
+            if(canCreateDirectory)
+            {
+                File.Create(filePath!);
+            }
+
+            if (!File.Exists(filePath))
             {
                 throw new FileNotFoundException(filePath);
             }
 
-            if (content != null)
-            {
-                content = content.CleanData();
-                using var sw = new StreamWriter(filePath, append: append);
-                await sw.WriteLineAsync(content);
-            }
+            content = content?.CleanData();
+            using var sw = new StreamWriter(filePath, append: append);
+            await sw.WriteLineAsync(content);
         }
 
-        public static void WriteToFile(string? filePath, string? content, bool append = true)// enter false for overwriting the file
+        public static void WriteToFile(string? filePath, string? content, bool append = true, bool canCreateDirectory = false)// enter false for overwriting the file
         {
             Validations.ThrowIfNullOrWhiteSpace(filePath);
+
+            if (canCreateDirectory)
+            {
+                File.Create(filePath!);
+            }
 
             if (!File.Exists(filePath))
             {
@@ -40,7 +47,7 @@ namespace VCS_API.DirectoryDB
             }
         }
 
-        public static async Task<string?> ReadAllTextAsync(string filePath)
+        public static async Task<string?> ReadAllTextAsync(string? filePath)
         {
             Validations.ThrowIfNullOrWhiteSpace(filePath);
             if (!File.Exists(filePath)) return null;
@@ -74,12 +81,12 @@ namespace VCS_API.DirectoryDB
             return false;
         }
 
-        public static async Task<List<string>> FilterRowsAsync(string filePath, Func<string, bool> predicate)
+        public static async Task<string[]> FilterRowsAsync(string filePath, Func<string, bool> predicate)
         {
             Validations.ThrowIfNullOrWhiteSpace(filePath);
             using var reader = new StreamReader(filePath);
             var resultRows = new List<string>();
-            
+
             while (!reader.EndOfStream)
             {
                 var line = await reader.ReadLineAsync();
@@ -92,7 +99,15 @@ namespace VCS_API.DirectoryDB
                 }
             }
 
-            return resultRows;
+            return resultRows.ToArray();
+        }
+
+        public static async Task<string?> FirstOrDefaultRowAsync(string filePath)
+        {
+            Validations.ThrowIfNullOrWhiteSpace(filePath);
+            using var reader = new StreamReader(filePath);
+            var line = await reader.ReadLineAsync();
+            return line?.CleanData();
         }
 
         public static async Task<string?> FirstOrDefaultRowAsync(string filePath, Func<string, bool> predicate)
@@ -119,31 +134,48 @@ namespace VCS_API.DirectoryDB
         {
             Validations.ThrowIfNullOrWhiteSpace(filePath);
 
-            if(File.Exists(filePath))
+            if (File.Exists(filePath))
             {
                 var rows = await GetAllRowsAsync(filePath);
-                var previousRowCount = rows?.Length;
 
-                rows = rows?.Where(row => !predicate(row)).ToArray();
-                var newRowCount = rows?.Length;
-                if(rows == null || rows.Length==0)
+                if (rows == null || rows.Length == 0)
+                {
+                    throw new KeyNotFoundException("No items found.");
+                }
+
+                List<string> newRows = [];
+                var deletedRow = default(string);
+
+                foreach (var row in rows)
+                {
+                    if(predicate(row))
+                    {
+                        if (!string.IsNullOrWhiteSpace(deletedRow))
+                        {
+                           throw new InvalidOperationException("More than 1 rows match the search criterion.");
+                        }
+
+                        deletedRow = row;
+                    }
+                    else
+                    {
+                        newRows.Add(row);
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(deletedRow))
                 {
                     throw new KeyNotFoundException("No item matches the search criterion.");
                 }
 
-                if(previousRowCount - newRowCount > 1)
+                await WriteToFileAsync(filePath, "", append: false);//emptyig the file first
+
+                foreach (var row in newRows)
                 {
-                    throw new InvalidOperationException("More than 1 rows match the search criterion.");
-                }
-                
-                if (previousRowCount - newRowCount == 0)
-                {
-                    throw new KeyNotFoundException("No item matches the search criterion.");
+                    await WriteToFileAsync(filePath, row);
                 }
 
-                using var writer = new StreamWriter(filePath);
-                await writer.WriteLineAsync(rows[0]);
-                return rows[0].CleanData();
+                return deletedRow.CleanData();
             }
             else throw new FileNotFoundException(filePath);
         }
@@ -152,11 +184,64 @@ namespace VCS_API.DirectoryDB
         {
             Validations.ThrowIfNullOrWhiteSpace(filePath);
 
-            if(File.Exists(filePath))
+            if (File.Exists(filePath))
             {
                 await File.WriteAllTextAsync(filePath, string.Empty);
             }
             else throw new FileNotFoundException(filePath);
+        }
+
+        public static async Task<string?> LastOrDefaultRowAsync(string? filePath)
+        {
+            Validations.ThrowIfNullOrWhiteSpace(filePath);
+
+            if(!File.Exists(filePath))
+            {
+                throw new FileNotFoundException(filePath);
+            }
+
+            string? lastLine = null;
+
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                long position = fs.Length - 1;
+                int byteValue;
+
+                while (position >= 0)
+                {
+                    fs.Seek(position, SeekOrigin.Begin);
+                    byteValue = fs.ReadByte();
+
+                    if (byteValue == '\n' || byteValue == '\r') // Handling both '\n' and '\r'
+                    {
+                        if (position < fs.Length - 1) // Check if there is content after the newline
+                        {
+                            using var sr = new StreamReader(fs, leaveOpen: true);
+                            lastLine = await sr.ReadLineAsync();
+                            if (!string.IsNullOrWhiteSpace(lastLine))
+                            {
+                                // Reset the pointer to the start of the file at the end
+                                fs.Seek(0, SeekOrigin.Begin);
+                                return lastLine;
+                            }
+                        }
+                    }
+                    position--;
+                }
+
+                // Handle the case where there is only one line without any newline at the end
+                if (position < 0)
+                {
+                    fs.Seek(0, SeekOrigin.Begin);
+                    using var sr = new StreamReader(fs, leaveOpen: true);
+                    lastLine = await sr.ReadLineAsync();
+                }
+
+                // Reset the pointer to the start of the file at the end
+                fs.Seek(0, SeekOrigin.Begin);
+            }
+
+            return lastLine;
         }
     }
 }

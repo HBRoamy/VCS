@@ -1,27 +1,29 @@
 ﻿using VCS_API.DirectoryDB.Helpers;
+using VCS_API.DirectoryDB.Repositories.Interfaces;
 using VCS_API.Extensions;
 using VCS_API.Helpers;
 using VCS_API.Models;
 
 namespace VCS_API.DirectoryDB.Repositories
 {
-    public class RepositoryRepo
+    public class RepositoryRepo : IRepositoryRepo
     {
         public async Task<RepositoryEntity?> CreateRepository(RepositoryEntity? repositoryEntity)
         {
             try
             {
-                ArgumentException.ThrowIfNullOrWhiteSpace(repositoryEntity?.Name); //since it will be a key used for searching, we can't allow it to be empty.
+                Validations.ThrowIfNullOrWhiteSpace(repositoryEntity?.Name); //since it will be a key used for searching, we can't allow it to be empty.
 
 #pragma warning disable CS8604 // Null is already getting validated above
-                var repoEntryRow = DBHelper.AppendDelimited(repositoryEntity?.Name, repositoryEntity?.Description, repositoryEntity?.IsPrivate.ToString(), repositoryEntity?.CreationTime);
+                var creationTime = DateTime.Now.ToString();
+                var repoEntryRow = DBHelper.AppendDelimited(repositoryEntity?.Name, repositoryEntity?.Description, repositoryEntity?.IsPrivate.ToString(), creationTime);
 #pragma warning restore CS8604
 
-                await DirectoryDB.WriteToFileAsync(DBPaths.RepoStorePath(), repoEntryRow);
-                await DirectoryDB.WriteToFileAsync(DBPaths.PullsStorePath(repositoryEntity?.Name), null);
-                await DirectoryDB.WriteToFileAsync(DBPaths.BranchStorePath(repositoryEntity?.Name), null);
+                await DirectoryDB.WriteToFileAsync(DBPaths.RepoStorePath(), repoEntryRow, canCreateDirectory: true);
+                await DirectoryDB.WriteToFileAsync(DBPaths.PullsStorePath(repositoryEntity?.Name), null, canCreateDirectory: true);
+                await DirectoryDB.WriteToFileAsync(DBPaths.BranchStorePath(repositoryEntity?.Name), null, canCreateDirectory: true);
 
-                AuditLogsRepo.Log(repositoryEntity?.Name, $"Created the repository \'{repositoryEntity?.Name}\' at {repositoryEntity?.CreationTime}.");
+                AuditLogsRepo.Log(repositoryEntity?.Name, $"Created the repository \'{repositoryEntity?.Name}\' at {creationTime}.");
 
                 return DeserializeRowEntry(repoEntryRow);
             }
@@ -37,7 +39,7 @@ namespace VCS_API.DirectoryDB.Repositories
         {
             try
             {
-                ArgumentException.ThrowIfNullOrWhiteSpace(repoName);
+                Validations.ThrowIfNullOrWhiteSpace(repoName);
 
                 var searchTerm = repoName + Constants.Constants.StandardColumnDelimiter; // this helps us eliminate the case when there are repos present with common prefix
                 var repoEntryRow = await DirectoryDB.FirstOrDefaultRowAsync(DBPaths.RepoStorePath(), x => x.StartsWith(searchTerm));
@@ -51,6 +53,26 @@ namespace VCS_API.DirectoryDB.Repositories
             {
                 Console.WriteLine($"An error occured in the method \'{nameof(GetRepoByNameAsync)}\' "+ex.Message);
             }
+
+            return null;
+        }
+
+        public async Task<List<RepositoryEntity>?> GetAllReposAsync()
+        {
+            try
+            {
+                var matchingRepoEntryRows = await DirectoryDB.GetAllRowsAsync(DBPaths.RepoStorePath());
+
+                if (matchingRepoEntryRows != null && matchingRepoEntryRows.Length != 0)
+                {
+                    return matchingRepoEntryRows.Select(row => DeserializeRowEntry(row)!).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occured in the method \'{nameof(GetAllReposAsync)}\' " + ex.Message);
+            }
+
             return null;
         }
 
@@ -58,7 +80,7 @@ namespace VCS_API.DirectoryDB.Repositories
         {
             try
             {
-                ArgumentNullException.ThrowIfNullOrWhiteSpace(repoName);
+                Validations.ThrowIfNullOrWhiteSpace(repoName);
 
                 var searchTerm = repoName + Constants.Constants.StandardColumnDelimiter; // this helps us eliminate the case when there are repos present with common prefix.
                 await DirectoryDB.DeleteRowAsync(DBPaths.RepoStorePath(), x => x.StartsWith(searchTerm, StringComparison.OrdinalIgnoreCase));

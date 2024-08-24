@@ -23,4 +23,5 @@ public static class VcsExtensions
 
     public static string[] GetColumns(this string row, string customDelimiter = Constants.Constants.StandardColumnDelimiter) => row?.Split(customDelimiter) ?? [];
     public static bool IsRootBranch(this BranchEntity branch) => string.Equals(branch.Name, Constants.Constants.MasterBranchName, StringComparison.OrdinalIgnoreCase);
+    public static bool IsRootBranch(this string branch) => string.Equals(branch, Constants.Constants.MasterBranchName, StringComparison.OrdinalIgnoreCase);
 }

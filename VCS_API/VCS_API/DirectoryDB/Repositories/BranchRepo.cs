@@ -1,29 +1,30 @@
-﻿using System.Text.RegularExpressions;
-using VCS_API.DirectoryDB.Helpers;
+﻿using VCS_API.DirectoryDB.Helpers;
+using VCS_API.DirectoryDB.Repositories.Interfaces;
 using VCS_API.Extensions;
 using VCS_API.Helpers;
 using VCS_API.Models;
 
 namespace VCS_API.DirectoryDB.Repositories
 {
-    public class BranchRepo
+    public class BranchRepo : IBranchRepo
     {
         //add a GetBranchNamesByRepoName Async should go in service and will be built on top of GetBranchesByRepoName here which returns a list of branch objects
         //Move the logging to the services
 
-        public async Task<BranchEntity?> CreateBranchAsync(BranchEntity newBranch)
+        public async Task<BranchEntity?> CreateBranchAsync(BranchEntity? newBranch)
         {
             try
             {
-                Validations.ThrowIfNullOrWhiteSpace(newBranch?.Name);
+                Validations.ThrowIfNullOrWhiteSpace(newBranch?.Name, newBranch?.RepoName);
 
-#pragma warning disable CS8604 // Null name is already getting validated above which is all that matters
-                var branchEntryRow = DBHelper.AppendDelimited(newBranch?.Name, newBranch?.RepoName, newBranch?.ParentBranchName, newBranch?.CreationTime);
-#pragma warning restore CS8604
+                var creationTime = DateTime.Now.ToString();
+                var branchEntryRow = DBHelper.AppendDelimited(newBranch?.Name, newBranch?.RepoName, newBranch?.ParentBranchName, creationTime);
+
                 await DirectoryDB.WriteToFileAsync(DBPaths.BranchStorePath(newBranch?.RepoName), branchEntryRow);
-                await DirectoryDB.WriteToFileAsync(DBPaths.ChangesetsHeadPath(newBranch?.RepoName, newBranch?.Name), null);
-                await DirectoryDB.WriteToFileAsync(DBPaths.CommitsStorePath(newBranch?.RepoName, newBranch?.Name), null);
-                AuditLogsRepo.Log(newBranch?.RepoName, $"Created the branch \'{newBranch?.Name}\' (based on \'{newBranch?.ParentBranchName}\') in the repository \'{newBranch?.RepoName}\' at {newBranch?.CreationTime}.");
+                await DirectoryDB.WriteToFileAsync(DBPaths.ChangesetsHeadPath(newBranch?.RepoName, newBranch?.Name), null, canCreateDirectory: true);
+                await DirectoryDB.WriteToFileAsync(DBPaths.CommitsStorePath(newBranch?.RepoName, newBranch?.Name), null, canCreateDirectory: true);
+
+                AuditLogsRepo.Log(newBranch?.RepoName, $"Created the branch \'{newBranch?.Name}\' (based on \'{newBranch?.ParentBranchName}\') in the repository \'{newBranch?.RepoName}\' at {creationTime}.");
 
                 return DeserializeRowEntry(branchEntryRow);
             }
@@ -35,7 +36,7 @@ namespace VCS_API.DirectoryDB.Repositories
             return null;
         }
 
-        public async Task<BranchEntity?> GetBranchByName(string? branchName, string? repoName)
+        public async Task<BranchEntity?> GetBranchByNameAsync(string? branchName, string? repoName)
         {
             try
             {
@@ -51,17 +52,14 @@ namespace VCS_API.DirectoryDB.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occured in the method \'{nameof(GetBranchByName)}\' " + ex.Message);
+                Console.WriteLine($"An error occured in the method \'{nameof(GetBranchByNameAsync)}\' " + ex.Message);
             }
 
             return null;
         }
 
-        public async Task<List<BranchEntity>?> GetBranchesByRepoName(string repoName)
+        public async Task<List<BranchEntity>?> GetBranchesByRepoNameAsync(string? repoName)
         {
-            ///string pattern = $@"^.*?, {Regex.Escape(repoName)}, .*?, .*?$"; //item should be in the second column only
-            ///bool isMatch1 = Regex.IsMatch(input1, pattern);
-
             try
             {
                 Validations.ThrowIfNullOrWhiteSpace(repoName);
@@ -74,15 +72,14 @@ namespace VCS_API.DirectoryDB.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occured in the method \'{nameof(GetBranchesByRepoName)}\' " + ex.Message);
+                Console.WriteLine($"An error occured in the method \'{nameof(GetBranchesByRepoNameAsync)}\' " + ex.Message);
             }
 
             return null;
         }
 
-        public async Task DeleteBranchByName(string? branchName, string repoName)
+        public async Task<BranchEntity?> DeleteBranchByNameAsync(string? branchName, string? repoName)
         {
-            // Service shouldn't allow the deletion of the master branch
             // after development, create a way to ONLY MARK THE BRANCH DELETED and dont delete it, it will be used to restore it later.
 
             try
@@ -93,16 +90,19 @@ namespace VCS_API.DirectoryDB.Repositories
                 var deletedRow = await DirectoryDB.DeleteRowAsync(DBPaths.BranchStorePath(repoName), x => x.StartsWith(searchTerm, StringComparison.OrdinalIgnoreCase));
                 var deletedObject = DeserializeRowEntry(deletedRow);
                 AuditLogsRepo.Log(repoName, $"Deleted the branch \'{branchName}\' (based on \'{deletedObject?.ParentBranchName}\') in the repository \'{repoName}\' at {DateTime.Now}.");
+
+                return deletedObject;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occured in the method \'{nameof(DeleteBranchByName)}\' " + ex.Message);
+                Console.WriteLine($"An error occured in the method \'{nameof(DeleteBranchByNameAsync)}\' " + ex.Message);
             }
+
+            return null;
         }
 
-        public async Task DeleteAllBranchesByRepoName(string repoName)
+        public async Task DeleteAllBranchesByRepoNameAsync(string? repoName)
         {
-            // Service shouldn't allow the deletion of the master branch
             // after development, create a way to ONLY MARK THE BRANCH DELETED and dont delete it, it will be used to restore it later.
 
             try
@@ -114,7 +114,7 @@ namespace VCS_API.DirectoryDB.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occured in the method \'{nameof(DeleteBranchByName)}\' " + ex.Message);
+                Console.WriteLine($"An error occured in the method \'{nameof(DeleteAllBranchesByRepoNameAsync)}\' " + ex.Message);
             }
         }
 

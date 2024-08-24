@@ -1,6 +1,7 @@
 ﻿using Moq;
 using System.Linq.Expressions;
 using System.Reflection;
+using VCS_API.DirectoryDB;
 using VCS_API.Models;
 using VCS_API.Repositories.Interfaces;
 using VCS_API.Services;
@@ -33,6 +34,15 @@ namespace VCS.API.TESTS
             var sut = await new RepoService(_mockRepo.Object).GetAllRepos();
 
             Assert.True(CompareLists(expectedResult, sut));
+        }
+
+        [Fact]
+        public async Task TestReader()
+        {
+            var result1 = await DirectoryDB.LastOrDefaultRowAsync(@"C:\Work\Personal\PersonalGitRepos\VCS\VCS_API\VCS_API\DataWarehouse\Branch\BranchStore.txt");
+            var result2 = await DirectoryDB.LastOrDefaultRowAsync(@"C:\Work\Personal\PersonalGitRepos\VCS\VCS_API\VCS_API\DataWarehouse\Branch\BranchStore.txt");
+            var result3 = await DirectoryDB.FirstOrDefaultRowAsync(@"C:\Work\Personal\PersonalGitRepos\VCS\VCS_API\VCS_API\DataWarehouse\Branch\BranchStore.txt");
+            var result4 = await DirectoryDB.LastOrDefaultRowAsync(@"C:\Work\Personal\PersonalGitRepos\VCS\VCS_API\VCS_API\DataWarehouse\Branch\BranchStore.txt");
         }
 
         [Fact]
