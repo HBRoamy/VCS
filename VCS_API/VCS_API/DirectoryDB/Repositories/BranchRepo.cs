@@ -20,9 +20,7 @@ namespace VCS_API.DirectoryDB.Repositories
                 var creationTime = DateTime.Now.ToString();
                 var branchEntryRow = DBHelper.AppendDelimited(newBranch?.Name, newBranch?.RepoName, newBranch?.ParentBranchName, creationTime);
 
-                await DirectoryDB.WriteToFileAsync(DBPaths.BranchStorePath(newBranch?.RepoName), branchEntryRow);
-                await DirectoryDB.WriteToFileAsync(DBPaths.ChangesetsHeadPath(newBranch?.RepoName, newBranch?.Name), null, canCreateDirectory: true);
-                await DirectoryDB.WriteToFileAsync(DBPaths.CommitsStorePath(newBranch?.RepoName, newBranch?.Name), null, canCreateDirectory: true);
+                await DirectoryDB.WriteToFileAsync(DBPaths.BranchStorePath(newBranch?.RepoName), branchEntryRow, canCreateDirectory: true);
 
                 AuditLogsRepo.Log(newBranch?.RepoName, $"Created the branch \'{newBranch?.Name}\' (based on \'{newBranch?.ParentBranchName}\') in the repository \'{newBranch?.RepoName}\' at {creationTime}.");
 

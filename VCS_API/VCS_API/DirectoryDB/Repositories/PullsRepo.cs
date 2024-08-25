@@ -36,7 +36,7 @@ namespace VCS_API.DirectoryDB.Repositories
                     string.Join("|", pullRequestEntity!.Labels ?? [string.Empty]),
                     creationTime);
 
-                await DirectoryDB.WriteToFileAsync(DBPaths.PullsStorePath(pullRequestEntity.RepoName), pullEntryRow);
+                await DirectoryDB.WriteToFileAsync(DBPaths.PullsStorePath(pullRequestEntity.RepoName), pullEntryRow, canCreateDirectory: true);
                 await DirectoryDB.WriteToFileAsync(DBPaths.PullDescriptionLOBPath(pullRequestEntity.RepoName, pullRequestEntity.PullSerialId), pullRequestEntity.Description, append: false, canCreateDirectory: true);
 
                 AuditLogsRepo.Log(pullRequestEntity.RepoName, $"Opened a pull request \'#{pullRequestEntity.PullSerialId}\' in {pullRequestEntity.RepoName} at {pullRequestEntity.CreationTime}.");

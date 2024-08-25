@@ -16,17 +16,19 @@ namespace VCS_API.DirectoryDB.Repositories
 				Validations.ThrowIfNullOrWhiteSpace(commitEntity?.BranchName, commitEntity?.RepoName, commitEntity?.Message);
 
                 var creationTime = DateTime.Now.ToString();
-				var commitRowEntry = DBHelper.AppendDelimited(
-                    Guid.NewGuid().ToString().Replace("-", string.Empty),
+                var commitHash = Guid.NewGuid().ToString().Replace("-", string.Empty);
+
+                var commitRowEntry = DBHelper.AppendDelimited(
+                    commitHash,
                     commitEntity?.Message,
                     commitEntity?.BaseCommitAddress,
                     creationTime
                     );
 
-				await DirectoryDB.WriteToFileAsync(DBPaths.CommitsStorePath(commitEntity?.RepoName!, commitEntity?.BranchName!), commitRowEntry);
-				await DirectoryDB.WriteToFileAsync(DBPaths.ChangesetsHeadPath(commitEntity?.RepoName!, commitEntity?.BranchName!), commitRowEntry, append: false); //overwrite the last commit info
-				await DirectoryDB.WriteToFileAsync(DBPaths.CommitLOBPath(commitEntity?.RepoName!, commitEntity?.BranchName!, commitEntity?.Hash), commitEntity?.Content, canCreateDirectory: true);
-                AuditLogsRepo.Log(commitEntity?.RepoName, $"Created a commit \'{commitEntity?.Hash}\' (based on \'{commitEntity?.BaseCommitAddress}\') in the branch \'{commitEntity?.BranchName}\' in the repository \'{commitEntity?.RepoName}\' at {creationTime}.");
+				await DirectoryDB.WriteToFileAsync(DBPaths.CommitsStorePath(commitEntity?.RepoName!, commitEntity?.BranchName!), commitRowEntry, canCreateDirectory: true);
+				await DirectoryDB.WriteToFileAsync(DBPaths.ChangesetsHeadPath(commitEntity?.RepoName!, commitEntity?.BranchName!), commitRowEntry, append: false, canCreateDirectory: true); //overwrite the last commit info
+				await DirectoryDB.WriteToFileAsync(DBPaths.CommitLOBPath(commitEntity?.RepoName!, commitEntity?.BranchName!, commitHash), commitEntity?.Content, canCreateDirectory: true);
+                AuditLogsRepo.Log(commitEntity?.RepoName, $"Created a commit \'{commitHash}\' (based on \'{commitEntity?.BaseCommitAddress}\') in the branch \'{commitEntity?.BranchName}\' in the repository \'{commitEntity?.RepoName}\' at {creationTime}.");
 
                 return DeserializeRowEntry(commitRowEntry);
             }
@@ -82,10 +84,22 @@ namespace VCS_API.DirectoryDB.Repositories
 
                 var commitEntryRow = await DirectoryDB.FirstOrDefaultRowAsync(DBPaths.ChangesetsHeadPath(repoName!, branchName!));
 
-                if(!string.IsNullOrWhiteSpace(commitEntryRow))
+                if (!string.IsNullOrWhiteSpace(commitEntryRow))
                 {
                     var commitObj = DeserializeRowEntry(commitEntryRow);
-                    return await GetCommitAsync(commitObj?.RepoName, commitObj?.BranchName, commitObj?.Hash, includeContent);
+
+                    if(commitObj is not null)
+                    {
+                        commitObj.RepoName = repoName;
+                        commitObj.BranchName = branchName;
+
+                        if(includeContent)
+                        {
+                            commitObj.Content = await DirectoryDB.ReadAllTextAsync(DBPaths.CommitLOBPath(repoName, branchName, commitObj.Hash));
+                        }
+                    }
+
+                    return commitObj;
                 }
             }
             catch (Exception ex)

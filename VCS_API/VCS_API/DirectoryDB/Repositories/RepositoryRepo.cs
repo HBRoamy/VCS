@@ -14,15 +14,10 @@ namespace VCS_API.DirectoryDB.Repositories
             {
                 Validations.ThrowIfNullOrWhiteSpace(repositoryEntity?.Name); //since it will be a key used for searching, we can't allow it to be empty.
 
-#pragma warning disable CS8604 // Null is already getting validated above
                 var creationTime = DateTime.Now.ToString();
                 var repoEntryRow = DBHelper.AppendDelimited(repositoryEntity?.Name, repositoryEntity?.Description, repositoryEntity?.IsPrivate.ToString(), creationTime);
-#pragma warning restore CS8604
 
                 await DirectoryDB.WriteToFileAsync(DBPaths.RepoStorePath(), repoEntryRow, canCreateDirectory: true);
-                await DirectoryDB.WriteToFileAsync(DBPaths.PullsStorePath(repositoryEntity?.Name), null, canCreateDirectory: true);
-                await DirectoryDB.WriteToFileAsync(DBPaths.BranchStorePath(repositoryEntity?.Name), null, canCreateDirectory: true);
-
                 AuditLogsRepo.Log(repositoryEntity?.Name, $"Created the repository \'{repositoryEntity?.Name}\' at {creationTime}.");
 
                 return DeserializeRowEntry(repoEntryRow);
@@ -35,7 +30,7 @@ namespace VCS_API.DirectoryDB.Repositories
             return null;
         }
 
-        public async Task<RepositoryEntity?> GetRepoByNameAsync(string repoName)
+        public async Task<RepositoryEntity?> GetRepoByNameAsync(string? repoName)
         {
             try
             {
@@ -76,7 +71,7 @@ namespace VCS_API.DirectoryDB.Repositories
             return null;
         }
 
-        public async Task DeleteRepoAsync(string repoName)
+        public async Task DeleteRepoAsync(string? repoName)
         {
             try
             {

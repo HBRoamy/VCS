@@ -4,7 +4,7 @@ namespace VCS_API.DirectoryDB
 {
     internal static class DBPaths
     {
-        private const string ParentPath = "DataWarehouse";
+        private const string ParentPath = "DataWarehouseV2";
         private const string AuditLogsPath = "AuditLogs";
         private const string RepositoriesPath = "Repositories";
         private const string Entities = "Entities";
@@ -74,7 +74,7 @@ namespace VCS_API.DirectoryDB
         {
             Validations.ThrowIfNullOrWhiteSpace(repoName, dateTime?.ToString());
 
-            return Path.Combine(ParentPath, AuditLogsPath, repoName!, $"{dateTime?.Date}.txt");
+            return Path.Combine(ParentPath, AuditLogsPath, repoName!, $"{dateTime?.Date.ToString("yyyy-MM-dd")}.txt");
         }
         #endregion
     }

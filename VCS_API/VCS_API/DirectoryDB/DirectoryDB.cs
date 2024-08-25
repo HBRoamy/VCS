@@ -10,9 +10,10 @@ namespace VCS_API.DirectoryDB
         {
             Validations.ThrowIfNullOrWhiteSpace(filePath);
 
-            if(canCreateDirectory)
+            if(!File.Exists(filePath) && canCreateDirectory)
             {
-                File.Create(filePath!);
+                _ = Directory.CreateDirectory(GetDirectoryFromFilePath(filePath!));
+                using (File.Create(filePath!)) ; //the using statement will close the file after creation.
             }
 
             if (!File.Exists(filePath))
@@ -25,13 +26,21 @@ namespace VCS_API.DirectoryDB
             await sw.WriteLineAsync(content);
         }
 
+        private static string GetDirectoryFromFilePath(string filePath)
+        {
+            Validations.ThrowIfNullOrWhiteSpace(filePath);
+
+            return filePath!.Replace(filePath[filePath.LastIndexOf("\\")..], string.Empty);
+        }
+
         public static void WriteToFile(string? filePath, string? content, bool append = true, bool canCreateDirectory = false)// enter false for overwriting the file
         {
             Validations.ThrowIfNullOrWhiteSpace(filePath);
 
-            if (canCreateDirectory)
+            if (!File.Exists(filePath) && canCreateDirectory)
             {
-                File.Create(filePath!);
+                _ = Directory.CreateDirectory(GetDirectoryFromFilePath(filePath!));
+                using (File.Create(filePath!)) ; //the using statement will close the file after creation.
             }
 
             if (!File.Exists(filePath))
@@ -50,20 +59,29 @@ namespace VCS_API.DirectoryDB
         public static async Task<string?> ReadAllTextAsync(string? filePath)
         {
             Validations.ThrowIfNullOrWhiteSpace(filePath);
+
             if (!File.Exists(filePath)) return null;
+
             return (await File.ReadAllTextAsync(filePath)).CleanData();
         }
 
         public static async Task<string[]?> GetAllRowsAsync(string filePath)
         {
             Validations.ThrowIfNullOrWhiteSpace(filePath);
+
             if (!File.Exists(filePath)) return null;
+
             return await File.ReadAllLinesAsync(filePath);
         }
 
         public static async Task<bool> AnyRowExistsAsync(string? filePath, Func<string, bool> predicate)
         {
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(filePath);
+            Validations.ThrowIfNullOrWhiteSpace(filePath);
+
+            if (!File.Exists(filePath))
+            {
+                return false;
+            }
 
             using var reader = new StreamReader(filePath);
             while (!reader.EndOfStream)
@@ -84,6 +102,12 @@ namespace VCS_API.DirectoryDB
         public static async Task<string[]> FilterRowsAsync(string filePath, Func<string, bool> predicate)
         {
             Validations.ThrowIfNullOrWhiteSpace(filePath);
+
+            if (!File.Exists(filePath))
+            {
+                return [];
+            }
+
             using var reader = new StreamReader(filePath);
             var resultRows = new List<string>();
 
@@ -99,12 +123,18 @@ namespace VCS_API.DirectoryDB
                 }
             }
 
-            return resultRows.ToArray();
+            return [.. resultRows];
         }
 
         public static async Task<string?> FirstOrDefaultRowAsync(string filePath)
         {
             Validations.ThrowIfNullOrWhiteSpace(filePath);
+
+            if (!File.Exists(filePath))
+            {
+                return null;
+            }
+
             using var reader = new StreamReader(filePath);
             var line = await reader.ReadLineAsync();
             return line?.CleanData();
@@ -113,17 +143,21 @@ namespace VCS_API.DirectoryDB
         public static async Task<string?> FirstOrDefaultRowAsync(string filePath, Func<string, bool> predicate)
         {
             Validations.ThrowIfNullOrWhiteSpace(filePath);
-            using var reader = new StreamReader(filePath);
 
-            while (!reader.EndOfStream)
+            if(File.Exists(filePath))
             {
-                var line = await reader.ReadLineAsync();
+                using var reader = new StreamReader(filePath);
 
-                if (string.IsNullOrWhiteSpace(line)) continue;
-
-                if (predicate(line))
+                while (!reader.EndOfStream)
                 {
-                    return line.CleanData();
+                    var line = await reader.ReadLineAsync();
+
+                    if (string.IsNullOrWhiteSpace(line)) continue;
+
+                    if (predicate(line))
+                    {
+                        return line.CleanData();
+                    }
                 }
             }
 
@@ -197,7 +231,7 @@ namespace VCS_API.DirectoryDB
 
             if(!File.Exists(filePath))
             {
-                throw new FileNotFoundException(filePath);
+                return null;
             }
 
             string? lastLine = null;

@@ -6,7 +6,7 @@ using VCS_API.ServicesV2.Interfaces;
 
 namespace VCS_API.ServicesV2
 {
-    public class BranchServiceV2(IBranchRepo branchRepo, ICommitServiceV2 commitsService) : IBranchServiceV2
+    public class BranchServiceV2(IBranchRepo branchRepo, IRepoServiceV2 repoService, ICommitServiceV2 commitsService) : IBranchServiceV2
     {
         public async Task<BranchEntity?> CreateBranchAsync(BranchEntity? newBranch)
         {
@@ -15,11 +15,11 @@ namespace VCS_API.ServicesV2
                 Validations.ThrowIfNull(newBranch);
                 Validations.ThrowIfNullOrWhiteSpace(newBranch?.Name, newBranch?.RepoName);
 
-                // validate branch name
+                // validate the branch name
                 Validations.ThrowIfInvalidName(newBranch?.Name, maxLength: 50);
 
-                // validate that repo exists
-                throw new NotImplementedException("repo validation missing");
+                // validate that the repo exists
+                Validations.ThrowIfNull(await repoService.GetRepoAsync(newBranch?.RepoName));
 
                 // validate that the branch doesn't already exists
                 var getBranchResult = await GetBranchAsync(newBranch?.Name, newBranch?.RepoName);// this will also prevent the user from creating a 2nd master branch
@@ -46,9 +46,9 @@ namespace VCS_API.ServicesV2
                 var createBranchResult = await branchRepo.CreateBranchAsync(newBranch) ?? throw new Exception($"An error occured while creating the branch \'{newBranch.Name}\'.");
                 
                 var baseCommit = !isRootBranch ? await commitsService.GetLatestCommitAsync(newBranch.RepoName, newBranch.ParentBranchName) : null;
-                var baseCommitAddress = (baseCommit!=null) ? $"{baseCommit.RepoName}{Constants.Constants.ItemAddressDelimiter}{baseCommit.BranchName}" : Constants.Constants.NullPlaceholder;
+                var baseCommitAddress = (baseCommit!=null) ? $"{baseCommit.BranchName}{Constants.Constants.ItemAddressDelimiter}{baseCommit.Hash}" : Constants.Constants.NullPlaceholder;
 
-                _ = await commitsService.CommitChanges(new CommitEntity
+                var firstCommit = await commitsService.CommitChanges(new CommitEntity
                 {
                     BranchName = createBranchResult.Name,
                     RepoName = createBranchResult.RepoName,
@@ -57,7 +57,9 @@ namespace VCS_API.ServicesV2
                     Content = (baseCommit != null) ? baseCommit.Content : string.Empty
                 }) 
                 ?? throw new Exception($"An error occured while creating the first commit for the branch \'{createBranchResult.Name}\'.");
-                
+
+                createBranchResult.Commits = [firstCommit];
+
                 return createBranchResult;
             }
             catch (Exception ex)
@@ -68,7 +70,7 @@ namespace VCS_API.ServicesV2
             return null;
         }
 
-        public async Task<List<BranchEntity>?>? GetAllBranchesInRepoAsync(string? repoName)
+        public async Task<List<BranchEntity>?> GetAllBranchesInRepoAsync(string? repoName)
         {
             try
             {

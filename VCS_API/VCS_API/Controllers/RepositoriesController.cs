@@ -1,15 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VCS_API.Extensions;
+using VCS_API.Helpers;
 using VCS_API.Models;
 using VCS_API.Models.RequestModels;
 using VCS_API.Models.ResponseModels;
 using VCS_API.Services.Interfaces;
+using VCS_API.ServicesV2.Interfaces;
 
 namespace VCS_API.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class RepositoriesController(IRepoService repoService, IBranchService branchService) : ControllerBase
+    public class RepositoriesController(IRepoService repoService, IBranchService branchService, IRepoServiceV2 repoServiceV2, IBranchServiceV2 branchServiceV2) : ControllerBase
     {
 
         [HttpGet]
@@ -17,13 +19,38 @@ namespace VCS_API.Controllers
         {
             var repos = await repoService.GetAllRepos();
 
-            if(repos.IsNullOrEmpty())
+            if (repos.IsNullOrEmpty())
             {
                 return NotFound("No repositories found.");
             }
 
             var responseList = new List<RepositoryResponse>();
-            foreach(var repo in repos)
+            foreach (var repo in repos)
+            {
+                responseList.Add(new RepositoryResponse
+                {
+                    Name = repo.Name,
+                    CreationTime = repo.CreationTime,
+                    Description = repo.Description,
+                    IsPrivate = repo.IsPrivate
+                });
+            }
+
+            return Ok(responseList);
+        }
+
+        [HttpGet("/v2")]
+        public async Task<ActionResult<List<RepositoryResponse>>> GetAllRepositoriesInfoV2()
+        {
+            var repos = await repoServiceV2.GetAllRepos();
+
+            if (repos is null || repos.Count == 0)
+            {
+                return NotFound("No repositories found.");
+            }
+
+            var responseList = new List<RepositoryResponse>();
+            foreach (var repo in repos)
             {
                 responseList.Add(new RepositoryResponse
                 {
@@ -43,7 +70,7 @@ namespace VCS_API.Controllers
             //fetches name, branches (integration with branch service), etc.
             var repo = await repoService.GetRepoByNameAsync(repoName);
 
-            if(repo is not null)
+            if (repo is not null)
             {
                 var branches = await branchService.GetBranchesByRepositoryNameAsync(repoName)!;
                 repo.Branches = branches;
@@ -69,8 +96,8 @@ namespace VCS_API.Controllers
                     IsPrivate = repositoryRequestBody.IsPrivate
                 };
                 var result = await repoService.CreateRepo(newRepo);
-                
-                if(result!=null)
+
+                if (result != null)
                 {
                     //Creating the default master branch
                     await branchService.CreateBranchAsync(new BranchEntity
@@ -80,6 +107,48 @@ namespace VCS_API.Controllers
                         ParentBranchName = string.Empty,
                         CreationTime = newRepo.CreationTime
                     });
+
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            return BadRequest("Either repo name already taken or is invalid due to usage of prohibited characters or is longer than 100 characters");
+        }
+
+
+        [HttpPost("/v2")]
+        public async Task<ActionResult> CreateRepositoryV2([FromBody] RepositoryRequest repositoryRequestBody)
+        {
+            //checks that the name is unique first, ordinal ignore case, also that it shouldn't contain special characters except period and underscores
+            Validations.ThrowIfNull(repositoryRequestBody);
+
+            try
+            {
+                var newRepo = new RepositoryEntity
+                {
+                    //In the future, the Id will be org+repoName
+                    Name = repositoryRequestBody.Name,
+                    Description = repositoryRequestBody.Description,
+                    IsPrivate = repositoryRequestBody.IsPrivate
+                };
+                var result = await repoServiceV2.CreateRepo(newRepo);
+
+                if (result != null)
+                {
+                    var createBranchResult = await branchServiceV2.CreateBranchAsync(new BranchEntity
+                    {
+                        Name = Constants.Constants.MasterBranchName,
+                        RepoName = result.Name,
+                        ParentBranchName = Constants.Constants.NullPlaceholder
+                    });
+
+                    Validations.ThrowIfNull(createBranchResult);
+
+                    result.Branches = [createBranchResult];
 
                     return Ok(result);
                 }
@@ -120,6 +189,30 @@ namespace VCS_API.Controllers
             }
 
             return BadRequest();
+        }
+
+        [HttpPost($"{Constants.Constants.RepoAndBranchName}/v2/")]
+        public async Task<ActionResult> CreateBranchInRepositoryV2([FromRoute] string repoName, string baseBranch, [FromBody] BranchRequest branchReqBody)
+        {
+            if (branchReqBody == null) return BadRequest("Request body can not be null");
+
+            try
+            {
+                var newBranch = new BranchEntity
+                {
+                    Name = branchReqBody.Name,
+                    RepoName = repoName,
+                    ParentBranchName = baseBranch,
+                };
+
+                var response = await branchServiceV2.CreateBranchAsync(newBranch);
+                Validations.ThrowIfNull(response);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("{repoName}/{branchName}")]
