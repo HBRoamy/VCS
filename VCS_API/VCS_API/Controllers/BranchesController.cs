@@ -7,12 +7,13 @@ using VCS_API.Models.RequestModels;
 using VCS_API.Models.ResponseModels;
 using VCS_API.Services;
 using VCS_API.Services.Interfaces;
+using VCS_API.ServicesV2.Interfaces;
 
 namespace VCS_API.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class BranchesController(IBranchService branchService, IComparisonService comparisonService, ICommitService commitService) : ControllerBase
+    public class BranchesController(IBranchService branchService, IBranchServiceV2 branchServiceV2, IComparisonService comparisonService, ICommitService commitService, ICommitServiceV2 commitServiceV2) : ControllerBase
     {
         //[HttpGet(Constants.Constants.RepositoryName)]
         //public ActionResult GetBranchesByRepoName(string repoName)
@@ -48,6 +49,24 @@ namespace VCS_API.Controllers
                 Message = commitEntity.Message,
                 Timestamp = DateTime.Now.ToString(),
                 BaseCommitAddress = !string.IsNullOrWhiteSpace(baseCommit) ? baseCommit.GetColumns()[^1] : string.Empty,
+                Content = commitEntity.Content
+            });
+
+            return Ok(newCommitPath);//TODO: WRONG since we are giving away our schema structure in this
+        }
+
+        [HttpPost("{repoName}/{branchName}/CommitV2")]
+        public async Task<ActionResult> CommitChangesToBranchV2(string repoName, string branchName, CommitRequest commitEntity)
+        {
+            var baseCommit = await commitServiceV2.GetLatestCommitAsync(repoName, branchName);
+            var newCommitPath = await commitServiceV2.CommitChanges(new CommitEntity
+            {
+                Hash = Guid.NewGuid().ToString().Replace("-", string.Empty),
+                BranchName = branchName,
+                RepoName = repoName,
+                Message = commitEntity.Message,
+                Timestamp = DateTime.Now.ToString(),
+                BaseCommitAddress = (baseCommit != null) ? $"{baseCommit.BranchName}{Constants.Constants.ItemAddressDelimiter}{baseCommit.Hash}" : Constants.Constants.NullPlaceholder,
                 Content = commitEntity.Content
             });
 
