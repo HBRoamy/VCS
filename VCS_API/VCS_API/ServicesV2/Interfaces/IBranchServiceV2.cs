@@ -6,7 +6,7 @@ namespace VCS_API.ServicesV2.Interfaces
     {
         public Task<BranchEntity?> CreateBranchAsync(BranchEntity? newBranch);
         public Task<List<BranchEntity>?> GetAllBranchesInRepoAsync(string? repoName);
-        public Task<BranchEntity?> GetBranchAsync(string? branchName, string? repoName);
+        public Task<BranchEntity?> GetBranchAsync(string? branchName, string? repoName, string? commitHash = null);
         public Task<BranchEntity?> DeleteBranchAsync(string? repoName, string? branchName);
         public Task DeleteAllBranchesInRepoAsync(string? repoName);
         public Task GetBranchTreeForRepoAsync(string? repoName);

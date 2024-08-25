@@ -80,6 +80,22 @@ namespace VCS_API.Controllers
             return BadRequest("No such repo exists.");
         }
 
+        [HttpGet($"{Constants.Constants.RepositoryName}/v2")]
+        public async Task<ActionResult<RepositoryEntity>> GetRepositoryV2([FromRoute] string repoName)
+        {
+            //fetches name, branches (integration with branch service), etc.
+            var repo = await repoServiceV2.GetRepoAsync(repoName);
+
+            if (repo is not null)
+            {
+                var branches = await branchServiceV2.GetAllBranchesInRepoAsync(repoName)!;
+                repo.Branches = branches;
+                return Ok(repo);
+            }
+
+            return BadRequest("No such repo exists.");
+        }
+
         [HttpPost]
         public async Task<ActionResult> CreateRepository([FromBody] RepositoryRequest repositoryRequestBody)
         {
@@ -237,6 +253,21 @@ namespace VCS_API.Controllers
             catch (Exception)
             {
                 return BadRequest("Check your code request for corrections.");
+            }
+        }
+
+        [HttpGet("{repoName}/{branchName}/v2")]
+        public async Task<ActionResult<BranchEntity?>> GetBranchV2(string repoName, string branchName, [FromQuery] string? commitHash)
+        {
+            try
+            {
+                Validations.ThrowIfNullOrWhiteSpace(branchName, repoName);
+
+                return await branchServiceV2.GetBranchAsync(branchName, repoName, commitHash);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"An unexpected error occurred when getting the branch. {ex.Message}");
             }
         }
 

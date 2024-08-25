@@ -84,11 +84,28 @@ namespace VCS_API.ServicesV2
             return null;
         }
 
-        public async Task<BranchEntity?> GetBranchAsync(string? branchName, string? repoName)
+        public async Task<BranchEntity?> GetBranchAsync(string? branchName, string? repoName, string? commitHash = null)
         {
             try
             {
-                return await branchRepo.GetBranchByNameAsync(branchName, repoName);
+                var branch = await branchRepo.GetBranchByNameAsync(branchName, repoName);
+
+                if( branch != null)
+                {
+                    var commitObj = default(CommitEntity?);
+                    if(!string.IsNullOrWhiteSpace(commitHash))
+                    {
+                        commitObj = await commitsService.GetCommitAsync(repoName, branchName, commitHash);
+                    }
+                    else
+                    {
+                        commitObj = await commitsService.GetLatestCommitAsync(repoName, branchName, includeContent: true);
+                    }
+
+                    branch.Commits = [commitObj];
+                }
+
+                return branch;
             }
             catch (Exception ex)
             {
