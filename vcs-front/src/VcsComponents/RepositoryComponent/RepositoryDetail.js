@@ -24,8 +24,9 @@ const RepositoryDetail = () => {
         console.warn(data)
         setRepository(data);
         const branchCommit = await getBranchContent(repoName, "Master");
-        setCurrentCommit(branchCommit);
-        setEditContent(branchCommit.content);
+        console.warn('got branch master: '+branchCommit.commits[0].message)
+        setCurrentCommit(branchCommit.commits[0]);
+        setEditContent(branchCommit.commits[0].content);
         setCommitMessage(''); // Reset commit message on repo fetch
         setError(null); // Clear any previous errors
         setEditError(null); // Clear any previous save errors
@@ -61,8 +62,8 @@ const RepositoryDetail = () => {
       };
       await saveBranchContent(repoName, currentBranch, formData);
       // Optionally, fetch the latest commit or update the commit details here
-      const updatedCommit = await getBranchContent(repoName, currentBranch);
-      setCurrentCommit(updatedCommit);
+      const getBranchResult = await getBranchContent(repoName, currentBranch);
+      setCurrentCommit(getBranchResult.commits[0]);
       setIsEditing(false);
     } catch (error) {
       setEditError('Failed to save content. Please try again.');
@@ -82,9 +83,9 @@ const RepositoryDetail = () => {
     const data = await getRepositoryByName(repoName);
     setRepository(data); //doing this to make sure that every time I add the branch, the repo is updated with the correct list of branches. In future use the create and use a GetBranchNamesByRepoName method in the backend in the branch service.
     setCurrentBranch(branchName);
-    const branchCommit = await getBranchContent(repoName, branchName);
-    setCurrentCommit(branchCommit);
-    setEditContent(branchCommit.content);
+    const getBranchResult = await getBranchContent(repoName, branchName);
+    setCurrentCommit(getBranchResult.commits[0]);
+    setEditContent(getBranchResult.commits[0].content);
     setCommitMessage(''); // Reset commit message on branch change
     setEditError(null); // Clear any previous save errors
   };
@@ -182,7 +183,7 @@ const RepositoryDetail = () => {
                     type="text"
                     className="form-control text-dark"
                     placeholder="Describe the change"
-                    value={commitMessage}
+                    //value={commitMessage}
                     onChange={(e) => setCommitMessage(e.target.value)}
                     id='CommitMessageBox'
                   />

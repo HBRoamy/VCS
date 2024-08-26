@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using VCS_API.DirectoryDB.Repositories;
 
 namespace VCS_API.Middlewares
 {
@@ -23,7 +24,8 @@ namespace VCS_API.Middlewares
             {
                 stopwatch.Stop();
                 var elapsedTime = stopwatch.ElapsedMilliseconds;
-                Console.WriteLine($"Request [{context.Request.Method}] {context.Request.Path} took {elapsedTime} ms.");
+                Console.WriteLine($"Request [{context.Request.Method}] {context.Request.Path} took {elapsedTime} ms [operation ended at {DateTime.Now}].");
+                AuditLogsRepo.LogStats(context.Request.Path, context.Request.Method, elapsedTime);
             }
         }
     }

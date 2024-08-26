@@ -39,7 +39,7 @@ namespace VCS_API.Controllers
             return Ok(responseList);
         }
 
-        [HttpGet("/v2")]
+        [HttpGet("v2")]
         public async Task<ActionResult<List<RepositoryResponse>>> GetAllRepositoriesInfoV2()
         {
             var repos = await repoServiceV2.GetAllRepos();
@@ -136,7 +136,7 @@ namespace VCS_API.Controllers
         }
 
 
-        [HttpPost("/v2")]
+        [HttpPost("v2")]
         public async Task<ActionResult> CreateRepositoryV2([FromBody] RepositoryRequest repositoryRequestBody)
         {
             //checks that the name is unique first, ordinal ignore case, also that it shouldn't contain special characters except period and underscores

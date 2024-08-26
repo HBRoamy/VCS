@@ -9,6 +9,7 @@ namespace VCS_API.DirectoryDB
         private const string RepositoriesPath = "Repositories";
         private const string Entities = "Entities";
         private const string LOBs = "LOBs";
+        private const string Stats = "Stats";
 
         #region Repositories
         public static string RepoStorePath() => Path.Combine(ParentPath, RepositoriesPath, "RepositoryStore.txt");
@@ -75,6 +76,13 @@ namespace VCS_API.DirectoryDB
             Validations.ThrowIfNullOrWhiteSpace(repoName, dateTime?.ToString());
 
             return Path.Combine(ParentPath, AuditLogsPath, repoName!, $"{dateTime?.Date.ToString("yyyy-MM-dd")}.txt");
+        }
+
+        public static string GlobalStatsLogsPath(string? endpointHttpMethod, DateTime? dateTime)
+        {
+            Validations.ThrowIfNullOrWhiteSpace(endpointHttpMethod, dateTime?.ToString());
+
+            return Path.Combine(ParentPath, Stats, endpointHttpMethod?.ToUpper()! , $"{dateTime?.Date.ToString("yyyy-MM-dd")}.txt");
         }
         #endregion
     }

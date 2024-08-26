@@ -69,6 +69,20 @@ namespace VCS_API.ServicesV2
             return null;
         }
 
+        public async Task<CommitEntity?> GetOldestCommitAsync(string? repoName, string? branchName, bool includeContent = true)
+        {
+            try
+            {
+                return await commitRepo.GetOldestCommitAsync(repoName, branchName, includeContent);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occured in the method \'{nameof(GetOldestCommitAsync)}\' " + ex.Message);
+            }
+
+            return null;
+        }
+
         public async Task<CommitEntity?> GetCommitAsync(string? repoName, string? branchName, string? commitHash)
         {
             try

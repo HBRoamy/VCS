@@ -110,6 +110,41 @@ namespace VCS_API.DirectoryDB.Repositories
             return null;
         }
 
+        public async Task<CommitEntity?> GetOldestCommitAsync(string? repoName, string? branchName, bool includeContent = true)
+        {
+            try
+            {
+                //base commit address is branchname#commihash
+                Validations.ThrowIfNullOrWhiteSpace(branchName, repoName);
+
+                var commitEntryRow = await DirectoryDB.FirstOrDefaultRowAsync(DBPaths.CommitsStorePath(repoName!, branchName!));
+
+                if (!string.IsNullOrWhiteSpace(commitEntryRow))
+                {
+                    var commitObj = DeserializeRowEntry(commitEntryRow);
+
+                    if (commitObj is not null)
+                    {
+                        commitObj.RepoName = repoName;
+                        commitObj.BranchName = branchName;
+
+                        if (includeContent)
+                        {
+                            commitObj.Content = await DirectoryDB.ReadAllTextAsync(DBPaths.CommitLOBPath(repoName, branchName, commitObj.Hash));
+                        }
+                    }
+
+                    return commitObj;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occured in the method \'{nameof(GetLatestCommitAsync)}\' " + ex.Message);
+            }
+
+            return null;
+        }
+
         public async Task<List<CommitEntity>?> GetAllCommitsContentless(string? repoName, string? branchName)//not supporting lists of contentful commits since there is no use case I can think of. Also It would be a crazy heavy overhead.
         {
             try
