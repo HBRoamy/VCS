@@ -29,34 +29,41 @@ const RepositoryDashboard = () => {
     }, [repoName]);
 
     return (
-        <div class="container text-start">
-            <ul class="timeline">
+        <div className="container">
+            <div className='row col h4 text-light font-raleway text-center'>
+                <span>
+                    <span className="text-warning">
+                        {repoName.toUpperCase()}
+                    </span>
+                    &nbsp; Timeline
+                </span>
+            </div>
+            <hr className="text-light"/>
+            <ul className="timeline text-start">
                 {history.map((historyFragment) => (
-                    // historyFragment.timestamp
-                    // historyFragment.eventstatement
                     <li>
                         <div class="timeline-time">
                             <span class="date">{historyFragment.timeStamp.substring(0, 10)}</span>
-                            <span class="time">{historyFragment.timeStamp.substring(10, 16)}</span>
+                            <span class="time" title={historyFragment.timeStamp}>{historyFragment.timeStamp.substring(10, 16)}</span>
                         </div>
                         <div class="timeline-icon">
                             <a href="javascript:;">&nbsp;</a>
                         </div>
                         <div class="timeline-body">
                             <div class="timeline-header">
-                                <span class="userimage"><img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" /></span>
-                                <span class="username"><a href="javascript:;">John Smith</a> <small></small></span>
+                                <span class="userimage"><img src="https://github.com/hbroamy.png" alt="" /></span>
+                                <span class="username"><a href="javascript:;">Harshit</a> <small></small></span>
                             </div>
                             <div class="timeline-content h6 font-montserrat">
                                 <p>
                                     {historyFragment.eventStatement}
                                 </p>
                             </div>
-                            <div class="timeline-footer">
+                            {/* <div class="timeline-footer">
 
                             </div>
                             <div class="timeline-comment-box">
-                                {/* <div class="user"><img src="https://bootdey.com/img/Content/avatar/avatar6.png" /></div>
+                                <div class="user"><img src="https://bootdey.com/img/Content/avatar/avatar6.png" /></div>
                                 <div class="input">
                                     <form action="">
                                         <div class="input-group">
@@ -66,22 +73,22 @@ const RepositoryDashboard = () => {
                                             </span>
                                         </div>
                                     </form>
-                                </div> */}
-                            </div>
+                                </div>
+                            </div> */}
                         </div>
                     </li>
                 ))}
-                <li>
+                {/* <li>
                     <div class="timeline-icon">
                         <a href="javascript:;">&nbsp;</a>
                     </div>
                     <div class="timeline-body">
                         <div><button className="btn btn-primary">Load more</button></div>
                     </div>
-                </li>
-                <li>
+                </li> */}
+                {/* <li>
 
-                </li>
+                </li> */}
             </ul>
         </div>
     )
