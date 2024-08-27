@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { createBranch } from '../../Services/RepoService';
 
-export default function ({ repoName, baseBranchName, onBranchCreation }) {
+export default function RepositoryBranchForm({ repoName, baseBranchName, onBranchCreation }) {
     const [newBranchName, setNewBranchName] = useState(null); // New state for commit message
     const [successMessage, setSuccessMessage] = useState(null); // New state for commit message
     const [error, setError] = useState(null); // State for error handling

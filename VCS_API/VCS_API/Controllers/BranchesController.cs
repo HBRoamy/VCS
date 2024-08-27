@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using VCS_API.Extensions;
+using VCS_API.Helpers;
 using VCS_API.Models;
 using VCS_API.Models.RequestModels;
 using VCS_API.Models.ResponseModels;
@@ -13,7 +14,7 @@ namespace VCS_API.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class BranchesController(IBranchService branchService, IBranchServiceV2 branchServiceV2, IComparisonService comparisonService, ICommitService commitService, ICommitServiceV2 commitServiceV2) : ControllerBase
+    public class BranchesController(IBranchService branchService, IBranchServiceV2 branchServiceV2, IComparisonService comparisonService, ICommitService commitService, ICommitServiceV2 commitServiceV2, IPullServiceV2 pullServiceV2) : ControllerBase
     {
         //[HttpGet(Constants.Constants.RepositoryName)]
         //public ActionResult GetBranchesByRepoName(string repoName)
@@ -35,6 +36,22 @@ namespace VCS_API.Controllers
             var serializedDiff = JsonConvert.SerializeObject(lineByLineComparison);
 
             return Ok(serializedDiff);
+        }
+
+        [HttpGet($"{Constants.Constants.RepoAndBranchCompare}/v2")]
+        public async Task<ActionResult<DiffMergeEntity>> GetComparisonWithBaseV2(string repoName, string branchName)
+        {
+            var branchEntity = await branchServiceV2?.GetBranchAsync(branchName, repoName)!;
+            Validations.ThrowIfNull(branchEntity);
+
+            var diffMergeResult = await pullServiceV2.GetSideBySideComparisonForCommit(repoName,  branchName, branchEntity?.ParentBranchName);
+
+            if (diffMergeResult == null)
+            {
+                return NotFound("No comparison could be done.");
+            }
+
+            return Ok(diffMergeResult);
         }
 
         [HttpPost("{repoName}/{branchName}/Commit")]

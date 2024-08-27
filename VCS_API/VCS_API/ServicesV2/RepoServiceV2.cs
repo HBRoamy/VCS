@@ -1,4 +1,5 @@
-﻿using VCS_API.DirectoryDB.Repositories.Interfaces;
+﻿using VCS_API.DirectoryDB.Repositories;
+using VCS_API.DirectoryDB.Repositories.Interfaces;
 using VCS_API.Helpers;
 using VCS_API.Models;
 using VCS_API.ServicesV2.Interfaces;
@@ -31,6 +32,22 @@ namespace VCS_API.ServicesV2
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occured in the method \'{nameof(CreateRepo)}\' " + ex.Message);
+            }
+
+            return null;
+        }
+
+        public async Task<List<HistoryFragment>?> GetRepoHistoryAsync(string repoName)
+        {
+            try
+            {
+                Validations.ThrowIfNullOrWhiteSpace(repoName);
+
+                return await AuditLogsRepo.GetRepoHistoryLogs(repoName);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occured in the method \'{nameof(GetRepoHistoryAsync)}\' " + ex.Message);
             }
 
             return null;

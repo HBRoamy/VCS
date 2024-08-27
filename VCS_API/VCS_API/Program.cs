@@ -23,6 +23,7 @@ builder.Services.AddSingleton<ICommitService, CommitService>();
 builder.Services.AddSingleton<IRepoServiceV2, RepoServiceV2>();
 builder.Services.AddSingleton<IBranchServiceV2, BranchServiceV2>();
 builder.Services.AddSingleton<ICommitServiceV2, CommitServiceV2>();
+builder.Services.AddSingleton<IPullServiceV2, PullServiceV2>();
 builder.Services.AddSingleton<IRepositoryRepo, RepositoryRepo>();
 builder.Services.AddSingleton<IBranchRepo, BranchRepo>();
 builder.Services.AddSingleton<ICommitsRepo, CommitsRepo>();

@@ -22,7 +22,7 @@ namespace VCS_API.DirectoryDB.Repositories
 
                 await DirectoryDB.WriteToFileAsync(DBPaths.BranchStorePath(newBranch?.RepoName), branchEntryRow, canCreateDirectory: true);
 
-                AuditLogsRepo.Log(newBranch?.RepoName, $"Created the branch \'{newBranch?.Name}\' (based on \'{newBranch?.ParentBranchName}\') in the repository \'{newBranch?.RepoName}\' at {creationTime}.");
+                AuditLogsRepo.Log(newBranch?.RepoName, $"Created the branch \'{newBranch?.Name}\' (based on \'{newBranch?.ParentBranchName}\') in the repository \'{newBranch?.RepoName}\'.");
 
                 return DeserializeRowEntry(branchEntryRow);
             }
@@ -87,7 +87,7 @@ namespace VCS_API.DirectoryDB.Repositories
                 var searchTerm = branchName + Constants.Constants.StandardColumnDelimiter; // this helps us eliminate the case when there are repos present with common prefix.
                 var deletedRow = await DirectoryDB.DeleteRowAsync(DBPaths.BranchStorePath(repoName), x => x.StartsWith(searchTerm, StringComparison.OrdinalIgnoreCase));
                 var deletedObject = DeserializeRowEntry(deletedRow);
-                AuditLogsRepo.Log(repoName, $"Deleted the branch \'{branchName}\' (based on \'{deletedObject?.ParentBranchName}\') in the repository \'{repoName}\' at {DateTime.Now}.");
+                AuditLogsRepo.Log(repoName, $"Deleted the branch \'{branchName}\' (based on \'{deletedObject?.ParentBranchName}\') in the repository \'{repoName}\'.");
 
                 return deletedObject;
             }
@@ -108,7 +108,7 @@ namespace VCS_API.DirectoryDB.Repositories
                 Validations.ThrowIfNullOrWhiteSpace(repoName);
 
                 await DirectoryDB.RemoveAll(DBPaths.BranchStorePath(repoName));
-                AuditLogsRepo.Log(repoName, $"Deleted all the branches in the repository \'{repoName}\' at {DateTime.Now}.");
+                AuditLogsRepo.Log(repoName, $"Deleted all the branches in the repository \'{repoName}\'.");
             }
             catch (Exception ex)
             {

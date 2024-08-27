@@ -30,7 +30,12 @@ const RepositoryList = () => {
     }
 
     if (error) {
-        return <p>{error}</p>;
+        // if(error.response.status === 404)
+        // {
+        //     return <p className='text-light'>No repositories found. Start by creating one.</p>;
+        // }
+
+        return <p className='text-light'>{error}</p>;
     }
 
     return (

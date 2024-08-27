@@ -71,18 +71,18 @@ namespace VCS_API.DirectoryDB
         #endregion
 
         #region Audit Logs
-        public static string RepoAuditLogsPath(string? repoName, DateTime? dateTime)
+        public static string RepoAuditLogsPath(string repoName)
         {
-            Validations.ThrowIfNullOrWhiteSpace(repoName, dateTime?.ToString());
+            Validations.ThrowIfNullOrWhiteSpace(repoName);
 
-            return Path.Combine(ParentPath, AuditLogsPath, repoName!, $"{dateTime?.Date.ToString("yyyy-MM-dd")}.txt");
+            return Path.Combine(ParentPath, AuditLogsPath, $"{repoName.ToUpper()}.txt");
         }
 
-        public static string GlobalStatsLogsPath(string? endpointHttpMethod, DateTime? dateTime)
+        public static string GlobalStatsLogsPath(string endpointHttpMethod)
         {
-            Validations.ThrowIfNullOrWhiteSpace(endpointHttpMethod, dateTime?.ToString());
+            Validations.ThrowIfNullOrWhiteSpace(endpointHttpMethod);
 
-            return Path.Combine(ParentPath, Stats, endpointHttpMethod?.ToUpper()! , $"{dateTime?.Date.ToString("yyyy-MM-dd")}.txt");
+            return Path.Combine(ParentPath, Stats, $"{endpointHttpMethod?.ToUpper()}.txt");
         }
         #endregion
     }

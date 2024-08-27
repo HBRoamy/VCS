@@ -7,6 +7,7 @@ namespace VCS_API.ServicesV2.Interfaces
         public Task<RepositoryEntity?> CreateRepo(RepositoryEntity? repoEntity);
         public Task<List<RepositoryEntity>?> GetAllRepos();
         public Task<RepositoryEntity?> GetRepoAsync(string? repoName);
+        public Task<List<HistoryFragment>?> GetRepoHistoryAsync(string repoName);
         public Task<RepositoryEntity?> UpdateRepoReadMe(string? repoName);
         public Task DeleteRepoAsync(string? repoName);
     }

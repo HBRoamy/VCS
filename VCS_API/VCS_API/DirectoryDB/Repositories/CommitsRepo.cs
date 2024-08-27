@@ -28,7 +28,7 @@ namespace VCS_API.DirectoryDB.Repositories
 				await DirectoryDB.WriteToFileAsync(DBPaths.CommitsStorePath(commitEntity?.RepoName!, commitEntity?.BranchName!), commitRowEntry, canCreateDirectory: true);
 				await DirectoryDB.WriteToFileAsync(DBPaths.ChangesetsHeadPath(commitEntity?.RepoName!, commitEntity?.BranchName!), commitRowEntry, append: false, canCreateDirectory: true); //overwrite the last commit info
 				await DirectoryDB.WriteToFileAsync(DBPaths.CommitLOBPath(commitEntity?.RepoName!, commitEntity?.BranchName!, commitHash), commitEntity?.Content, canCreateDirectory: true);
-                AuditLogsRepo.Log(commitEntity?.RepoName, $"Created a commit \'{commitHash}\' (based on \'{commitEntity?.BaseCommitAddress}\') in the branch \'{commitEntity?.BranchName}\' in the repository \'{commitEntity?.RepoName}\' at {creationTime}.");
+                AuditLogsRepo.Log(commitEntity?.RepoName, $"Created a commit \'{commitHash}\' (based on \'{commitEntity?.BaseCommitAddress}\') in the branch \'{commitEntity?.BranchName}\' in the repository \'{commitEntity?.RepoName}\'.");
 
                 return DeserializeRowEntry(commitRowEntry);
             }

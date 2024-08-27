@@ -39,7 +39,7 @@ namespace VCS_API.DirectoryDB.Repositories
                 await DirectoryDB.WriteToFileAsync(DBPaths.PullsStorePath(pullRequestEntity.RepoName), pullEntryRow, canCreateDirectory: true);
                 await DirectoryDB.WriteToFileAsync(DBPaths.PullDescriptionLOBPath(pullRequestEntity.RepoName, pullRequestEntity.PullSerialId), pullRequestEntity.Description, append: false, canCreateDirectory: true);
 
-                AuditLogsRepo.Log(pullRequestEntity.RepoName, $"Opened a pull request \'#{pullRequestEntity.PullSerialId}\' in {pullRequestEntity.RepoName} at {pullRequestEntity.CreationTime}.");
+                AuditLogsRepo.Log(pullRequestEntity.RepoName, $"Opened a pull request \'#{pullRequestEntity.PullSerialId}\' in {pullRequestEntity.RepoName}.");
 
                 return DeserializeRowEntry(pullEntryRow);
             }
@@ -130,7 +130,7 @@ namespace VCS_API.DirectoryDB.Repositories
                         statusAsString = "BAD STATE DETECTED";
                     }
                         
-                    AuditLogsRepo.Log(repoName, $"Updated status to \'{statusAsString}\' for the pull request \'#{pullSerialId}\' in {repoName} at {pullObj.LastStatusChangeTimestamp}.");
+                    AuditLogsRepo.Log(repoName, $"Updated status to \'{statusAsString}\' for the pull request \'#{pullSerialId}\' in {repoName}.");
 
                     return pullObj;
                 }

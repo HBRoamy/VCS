@@ -22,7 +22,15 @@ export const getRepositoryByName = async (name) => {
   }
 };
 
-// Function to get a repository by its name
+export const getRepositoryHistory = async (name) => {
+  try {
+    return await get(`${REPOSITORIES_ENDPOINT}/${encodeURIComponent(name)}/History`);
+  } catch (error) {
+    console.error('Error fetching repository by name:', error);
+    throw error;
+  }
+};
+
 export const getBranchContent = async (repoName, branchName, commitHash) => {
   try {
     var requestUri = `${REPOSITORIES_ENDPOINT}/${encodeURIComponent(repoName)}/${encodeURIComponent(branchName)}/v2?${commitHash = commitHash ?? ''}`;

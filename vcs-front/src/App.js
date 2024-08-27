@@ -7,6 +7,7 @@ import NotFound from './BasicComponents/NotFound/NotFoundPage';
 import RepositoryForm from './VcsComponents/RepositoryComponent/RepositoryForm';
 import RepositoryList from './VcsComponents/RepositoryComponent/RepositoryList';
 import RepositoryDetail from './VcsComponents/RepositoryComponent/RepositoryDetail';
+import RepositoryDashboard from './VcsComponents/RepositoryComponent/RepositoryDashboard';
 import UserInfo from './VcsComponents/UserComponent/UserInfo';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
               <Route path="/Repositories/New" element={<RepositoryForm />} />
               <Route path="/Repositories" element={<RepositoryList />} />
               <Route path="/Repositories/:repoName" element={<RepositoryDetail />} />
+              <Route path="/Repositories/:repoName/timeline" element={<RepositoryDashboard />} />
               <Route path="/About" element={<UserInfo />} />
               <Route path="/NotFound" element={<NotFound />} />
               <Route path="*" element={<NotFound />} />

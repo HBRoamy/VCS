@@ -18,7 +18,7 @@ namespace VCS_API.DirectoryDB.Repositories
                 var repoEntryRow = DBHelper.AppendDelimited(repositoryEntity?.Name, repositoryEntity?.Description, repositoryEntity?.IsPrivate.ToString(), creationTime);
 
                 await DirectoryDB.WriteToFileAsync(DBPaths.RepoStorePath(), repoEntryRow, canCreateDirectory: true);
-                AuditLogsRepo.Log(repositoryEntity?.Name, $"Created the repository \'{repositoryEntity?.Name}\' at {creationTime}.");
+                AuditLogsRepo.Log(repositoryEntity?.Name, $"Created the repository \'{repositoryEntity?.Name}\'.");
 
                 return DeserializeRowEntry(repoEntryRow);
             }
@@ -79,7 +79,7 @@ namespace VCS_API.DirectoryDB.Repositories
 
                 var searchTerm = repoName + Constants.Constants.StandardColumnDelimiter; // this helps us eliminate the case when there are repos present with common prefix.
                 await DirectoryDB.DeleteRowAsync(DBPaths.RepoStorePath(), x => x.StartsWith(searchTerm, StringComparison.OrdinalIgnoreCase));
-                AuditLogsRepo.Log(repoName, $"Deleted the repository \'{repoName}\' at {DateTime.Now}.");
+                AuditLogsRepo.Log(repoName, $"Deleted the repository \'{repoName}\'.");
             }
             catch (Exception ex)
             {
