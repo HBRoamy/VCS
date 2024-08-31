@@ -1,0 +1,35 @@
+.text-updated
+{
+    background: #ffcd38;
+    color: #000000 !important;
+}
+
+.text-inserted
+{
+    background: #48d72e;
+    color: #000000 !important;
+}
+
+.text-deleted
+{
+    background: #e35d5d;
+    color: #ffffff !important;
+}
+
+.line-inserted
+{
+    background: #73ff60 !important;
+    color: #000000 !important;
+}
+
+.line-updated
+{
+    background: #ffd148 !important;
+    color: #000000 !important;
+}
+
+.line-deleted
+{
+    background: #f89c9c !important;
+    color: #000000 !important;
+}

@@ -55,7 +55,7 @@ namespace VCS_API.DirectoryDB
             return Path.Combine(ParentPath, LOBs, "MarkdownLOBs", $"{id}.md");
         }
 
-        public static string ReadMeLOBPath(string? repoName)
+        public static string ReadMeLOBPath(string repoName)
         {
             Validations.ThrowIfNullOrWhiteSpace( repoName);
 

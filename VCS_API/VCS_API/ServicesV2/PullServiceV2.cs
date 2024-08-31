@@ -35,7 +35,15 @@ namespace VCS_API.ServicesV2
                 Validations.ThrowIfNull(parentBranchLatestCommit, currentBranchFirstCommit, currentBranchLatestCommit);
 
 
-                var comparisonResult = new DiffMergeEntity();
+                var comparisonResult = new DiffMergeEntity
+                {
+                    RepoName = repoName,
+                    BranchName = branchName,
+                    BaseBranchName = parentBranchName,
+                    BranchCommitHash = currentBranchLatestCommit?.Hash,
+                    BaseBranchCommitHash = parentBranchLatestCommit?.Hash
+                };
+
                 var parentBranchLatestCommitContent = parentBranchLatestCommit?.Content?.CleanData();
                 var currentBranchFirstCommitContent = currentBranchFirstCommit?.Content.CleanData();
                 var currentBranchLatestCommitContent = currentBranchLatestCommit?.Content.CleanData();
@@ -50,7 +58,7 @@ namespace VCS_API.ServicesV2
                     //check how much the current branch has changed since we created it.
                     var currentNewChanges = GenerateDiff(currentBranchFirstCommitContent, currentBranchLatestCommitContent).NewText.Lines;
 
-                    comparisonResult.Mergeable = false; // merge conflict
+                    comparisonResult.IsMergeable = false; // merge conflict
                     comparisonResult.OldChanges = parentNewChanges;
                     comparisonResult.NewChanges = currentNewChanges;
 
@@ -66,7 +74,7 @@ namespace VCS_API.ServicesV2
                 // else we simply find the diff and return it
                 var diffResult = GenerateDiff(parentBranchLatestCommitContent, currentBranchLatestCommitContent);
 
-                comparisonResult.Mergeable = true;
+                comparisonResult.IsMergeable = true;
                 comparisonResult.OldChanges = diffResult.OldText.Lines;
                 comparisonResult.NewChanges = diffResult.NewText.Lines;
 

@@ -39,7 +39,7 @@ namespace VCS_API.DirectoryDB.Repositories
                 await DirectoryDB.WriteToFileAsync(DBPaths.PullsStorePath(pullRequestEntity.RepoName), pullEntryRow, canCreateDirectory: true);
                 await DirectoryDB.WriteToFileAsync(DBPaths.PullDescriptionLOBPath(pullRequestEntity.RepoName, pullRequestEntity.PullSerialId), pullRequestEntity.Description, append: false, canCreateDirectory: true);
 
-                AuditLogsRepo.Log(pullRequestEntity.RepoName, $"Opened a pull request \'#{pullRequestEntity.PullSerialId}\' in {pullRequestEntity.RepoName}.");
+                AuditLogsRepo.Log(pullRequestEntity.RepoName, $"Created a pull request \'#{pullRequestEntity.PullSerialId}\' in {pullRequestEntity.RepoName}.");
 
                 return DeserializeRowEntry(pullEntryRow);
             }

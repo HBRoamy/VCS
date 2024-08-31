@@ -18,9 +18,11 @@ namespace VCS_API.DirectoryDB.Repositories
                 var repoEntryRow = DBHelper.AppendDelimited(repositoryEntity?.Name, repositoryEntity?.Description, repositoryEntity?.IsPrivate.ToString(), creationTime);
 
                 await DirectoryDB.WriteToFileAsync(DBPaths.RepoStorePath(), repoEntryRow, canCreateDirectory: true);
+                var createdRepo = DeserializeRowEntry(repoEntryRow)!;
+                createdRepo.ReadMeBody = await UpdateReadMe(repositoryEntity?.Name!, "# ReadMe");
                 AuditLogsRepo.Log(repositoryEntity?.Name, $"Created the repository \'{repositoryEntity?.Name}\'.");
 
-                return DeserializeRowEntry(repoEntryRow);
+                return createdRepo;
             }
             catch (Exception ex)
             {
@@ -41,7 +43,11 @@ namespace VCS_API.DirectoryDB.Repositories
 
                 if(!string.IsNullOrWhiteSpace(repoEntryRow))
                 {
-                    return DeserializeRowEntry(repoEntryRow);
+                    var repoEntity = DeserializeRowEntry(repoEntryRow)!;
+                    var readMeBody = await DirectoryDB.ReadAllTextAsync(DBPaths.ReadMeLOBPath(repoName!));
+                    repoEntity.ReadMeBody = readMeBody ?? "# ReadMe";
+
+                    return repoEntity;
                 }
             }
             catch(Exception ex)
@@ -85,6 +91,24 @@ namespace VCS_API.DirectoryDB.Repositories
             {
                 Console.WriteLine($"An error occured in the method \'{DeleteRepoAsync}\' " + ex.Message);
             }
+        }
+
+        public async Task<string> UpdateReadMe(string repoName, string body)
+        {
+            try
+            {
+                Validations.ThrowIfNullOrWhiteSpace(repoName, body);
+                await DirectoryDB.WriteToFileAsync(DBPaths.ReadMeLOBPath(repoName), body, append: false, canCreateDirectory: true);
+                AuditLogsRepo.Log(repoName, $"Updated the ReadMe for the repository \'{repoName}\'.");
+
+                return body;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occured in the method \'{UpdateReadMe}\' " + ex.Message);
+            }
+
+            return string.Empty;
         }
 
         private static RepositoryEntity? DeserializeRowEntry(string? csvRowEntry)

@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
 import './Styles/TimeLine.css';
 import { getRepositoryHistory } from '../../Services/RepoService';
+import MarkdownBlock from "../UtilComponents/MarkdownBlock";
 
 const RepositoryDashboard = () => {
     const { repoName } = useParams();
@@ -18,8 +19,8 @@ const RepositoryDashboard = () => {
                 setHistory(data);
                 setError(null); // Clear any previous errors
             } catch (error) {
-                setError('Failed to fetch repository');
-                console.error('Error fetching repository:', error);
+                setError('Failed to fetch history');
+                console.error('Error fetching history:', error);
             } finally {
                 setLoading(false);
             }
@@ -38,7 +39,13 @@ const RepositoryDashboard = () => {
                     &nbsp; Timeline
                 </span>
             </div>
-            <hr className="text-light"/>
+            <hr className="text-light" />
+            {error && <p className="text-danger">{error}</p>}
+            {loading && <p className="text-warning">
+                <div class="spinner-border text-warning" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </p>}
             <ul className="timeline text-start">
                 {history.map((historyFragment) => (
                     <li>
@@ -56,7 +63,7 @@ const RepositoryDashboard = () => {
                             </div>
                             <div class="timeline-content h6 font-montserrat">
                                 <p>
-                                    {historyFragment.eventStatement}
+                                    <MarkdownBlock content={historyFragment.eventStatement} />
                                 </p>
                             </div>
                             {/* <div class="timeline-footer">
@@ -85,9 +92,6 @@ const RepositoryDashboard = () => {
                     <div class="timeline-body">
                         <div><button className="btn btn-primary">Load more</button></div>
                     </div>
-                </li> */}
-                {/* <li>
-
                 </li> */}
             </ul>
         </div>

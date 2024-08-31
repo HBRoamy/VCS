@@ -93,6 +93,10 @@
 
 /* ----------------------------------------------------------- */
 
+.bg-default {
+  background-color: #172b4d !important;
+}
+
 .btn-orange
 {
   color:white !important;
@@ -103,22 +107,6 @@
 {
   color:white !important;
   background-color: #ff5833be !important;
-}
-
-.home-btn
-{
-    /* background: #212529; */
-    transition: all 0.2s ease-in;
-    color:white !important;
-    font-weight: bold;
-    /* margin: 0 0.1em 0 0.1em; */
-}
-.home-btn:hover
-{
-    color:#42b883 !important;
-    background: rgba(57, 57, 57, 0.7);
-    padding-top: 0.1em;
-    transition: all 0.2s ease-in;
 }
 
 .like-btn

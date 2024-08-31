@@ -1,8 +1,24 @@
 import { Link } from 'react-router-dom';
+import './Styles/Style.css'
+import MarkdownBlock from '../../VcsComponents/UtilComponents/MarkdownBlock';
 
 export default function () {
+
+    const featuresInDevelopment = `
+#### Upcoming features: 
+- Branch Tree Visualizer
+- Backend Stats Dashboard
+- Auth
+- Merge Conflict Visualizer
+- Merge Feature
+- File Directory Support
+- Pull Request Feature
+- Commit History
+- Syntax Highlighter
+    `;
+
     return (
-        <div className="container mt-4">
+        <div className="container" id='centerELem'>
             <div className="row justify-content-center">
                 <div className="col-8">
                     <div className="h-100 p-4 text-light">
@@ -20,6 +36,15 @@ export default function () {
                         <Link to={`/Repositories/New`} className="btn btn-success font-raleway">
                             Create a Repository
                         </Link>
+                    </div>
+                </div>
+            </div>
+            <div className='row'>
+                <div className='col'>
+                    <div className=' card bg-default p-2'>
+                        <div className='card-body bg-dark text-start'>
+                            <MarkdownBlock classes={'text-light'} content={featuresInDevelopment} />
+                        </div>
                     </div>
                 </div>
             </div>

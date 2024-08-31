@@ -9,6 +9,7 @@ import RepositoryList from './VcsComponents/RepositoryComponent/RepositoryList';
 import RepositoryDetail from './VcsComponents/RepositoryComponent/RepositoryDetail';
 import RepositoryDashboard from './VcsComponents/RepositoryComponent/RepositoryDashboard';
 import UserInfo from './VcsComponents/UserComponent/UserInfo';
+import DiffComponent from './VcsComponents/PullComponent/DiffComponent';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
               <Route path="/Repositories/:repoName" element={<RepositoryDetail />} />
               <Route path="/Repositories/:repoName/timeline" element={<RepositoryDashboard />} />
               <Route path="/About" element={<UserInfo />} />
+              <Route path="/Compare/:repoName/:branchName" element={<DiffComponent />} />
               <Route path="/NotFound" element={<NotFound />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
