@@ -1,4 +1,5 @@
 ﻿using VCS_API.Models;
+using static VCS_API.ServicesV2.BranchServiceV2;
 
 namespace VCS_API.ServicesV2.Interfaces
 {
@@ -9,6 +10,6 @@ namespace VCS_API.ServicesV2.Interfaces
         public Task<BranchEntity?> GetBranchAsync(string? branchName, string? repoName, string? commitHash = null);
         public Task<BranchEntity?> DeleteBranchAsync(string? repoName, string? branchName);
         public Task DeleteAllBranchesInRepoAsync(string? repoName);
-        public Task GetBranchTreeForRepoAsync(string? repoName);
+        public Task<RawNodeDatum?> GetBranchTreeForRepoAsync(string? repoName);
     }
 }

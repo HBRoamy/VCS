@@ -62,6 +62,7 @@ export default function DiffComponent() {
 
         fetchDiff();
     }, [repoName, branchName]);
+    
     if (loading) {
         return (
             <div>
@@ -77,6 +78,7 @@ export default function DiffComponent() {
     if (error) {
         return <p className="text-danger">{error}</p>;
     }
+    
     const getLineStyle = (type) => {
         switch (type) {
             case 2: //inserted

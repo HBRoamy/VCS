@@ -24,14 +24,14 @@ namespace VCS_API.ServicesV2
                 // validate that the branch doesn't already exists
                 var getBranchResult = await GetBranchAsync(newBranch?.Name, newBranch?.RepoName);// this will also prevent the user from creating a 2nd master branch
 
-                if(getBranchResult != null)
+                if (getBranchResult != null)
                 {
                     throw new InvalidOperationException("The branch name already exists.");
                 }
 
                 // validate that parent branch exists (not for the master branch)
                 var isRootBranch = newBranch!.Name!.IsRootBranch();
-                if(!isRootBranch)
+                if (!isRootBranch)
                 {
                     Validations.ThrowIfNullOrWhiteSpace(newBranch.ParentBranchName);
 
@@ -44,9 +44,9 @@ namespace VCS_API.ServicesV2
                 }
 
                 var createBranchResult = await branchRepo.CreateBranchAsync(newBranch) ?? throw new Exception($"An error occured while creating the branch \'{newBranch.Name}\'.");
-                
+
                 var baseCommit = !isRootBranch ? await commitsService.GetLatestCommitAsync(newBranch.RepoName, newBranch.ParentBranchName) : null;
-                var baseCommitAddress = (baseCommit!=null) ? $"{baseCommit.BranchName}{Constants.Constants.ItemAddressDelimiter}{baseCommit.Hash}" : Constants.Constants.NullPlaceholder;
+                var baseCommitAddress = (baseCommit != null) ? $"{baseCommit.BranchName}{Constants.Constants.ItemAddressDelimiter}{baseCommit.Hash}" : Constants.Constants.NullPlaceholder;
 
                 var firstCommit = await commitsService.CommitChanges(new CommitEntity
                 {
@@ -55,7 +55,7 @@ namespace VCS_API.ServicesV2
                     Message = "Branch Initialized",
                     BaseCommitAddress = baseCommitAddress,
                     Content = (baseCommit != null) ? baseCommit.Content : string.Empty
-                }) 
+                })
                 ?? throw new Exception($"An error occured while creating the first commit for the branch \'{createBranchResult.Name}\'.");
 
                 createBranchResult.Commits = [firstCommit];
@@ -90,10 +90,10 @@ namespace VCS_API.ServicesV2
             {
                 var branch = await branchRepo.GetBranchByNameAsync(branchName, repoName);
 
-                if( branch != null)
+                if (branch != null)
                 {
                     var commitObj = default(CommitEntity?);
-                    if(!string.IsNullOrWhiteSpace(commitHash))
+                    if (!string.IsNullOrWhiteSpace(commitHash))
                     {
                         commitObj = await commitsService.GetCommitAsync(repoName, branchName, commitHash);
                     }
@@ -119,7 +119,7 @@ namespace VCS_API.ServicesV2
         {
             try
             {
-                if(branchName!=null && branchName.IsRootBranch())
+                if (branchName != null && branchName.IsRootBranch())
                 {
                     throw new InvalidOperationException("Can not delete the Master branch unless the whole repository is getting deleted.");
                 }
@@ -146,16 +146,46 @@ namespace VCS_API.ServicesV2
             }
         }
 
-        public async Task GetBranchTreeForRepoAsync(string? repoName)
+        public async Task<RawNodeDatum?> GetBranchTreeForRepoAsync(string? repoName)
         {
             try
             {
-                throw new NotImplementedException();
+                var branches = await branchRepo.GetBranchesByRepoNameAsync(repoName);
+                return BuildTree(branches ?? []);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occured in the method \'{nameof(GetBranchTreeForRepoAsync)}\' " + ex.Message);
             }
+
+            return null;
+        }
+
+        public static RawNodeDatum? BuildTree(List<BranchEntity> branches)
+        {
+            var nodeMap = new Dictionary<string, RawNodeDatum>();
+            RawNodeDatum? masterNode = null;
+            // Create nodes for all branches
+            foreach (var branch in branches)
+            {
+                _ = nodeMap.TryAdd(branch.ParentBranchName, new RawNodeDatum { Name = branch.ParentBranchName });
+                _ = nodeMap.TryAdd(branch.Name, new RawNodeDatum { Name = branch.Name });
+                nodeMap[branch.ParentBranchName].Children.Add(nodeMap[branch.Name]);
+
+                if (branch.Name!.IsRootBranch() && branch.ParentBranchName!.Equals(Constants.Constants.NullPlaceholder))
+                {
+                    masterNode = nodeMap[branch.Name];
+                }
+            }
+
+            return masterNode;
+        }
+
+        public class RawNodeDatum
+        {
+            public string Name { get; set; }
+            //public Dictionary<string, object> Attributes { get; set; } = [];
+            public HashSet<RawNodeDatum> Children { get; set; } = [];
         }
     }
 }

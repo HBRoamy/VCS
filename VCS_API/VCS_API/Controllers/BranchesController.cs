@@ -3,6 +3,7 @@ using VCS_API.Helpers;
 using VCS_API.Models;
 using VCS_API.Models.RequestModels;
 using VCS_API.ServicesV2.Interfaces;
+using static VCS_API.ServicesV2.BranchServiceV2;
 
 namespace VCS_API.Controllers
 {

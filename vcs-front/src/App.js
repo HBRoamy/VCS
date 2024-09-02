@@ -10,6 +10,8 @@ import RepositoryDetail from './VcsComponents/RepositoryComponent/RepositoryDeta
 import RepositoryDashboard from './VcsComponents/RepositoryComponent/RepositoryDashboard';
 import UserInfo from './VcsComponents/UserComponent/UserInfo';
 import DiffComponent from './VcsComponents/PullComponent/DiffComponent';
+import RepoBranchTree from './VcsComponents/RepositoryComponent/RepoBranchTree';
+import SyntaxHighlighterBlock from './VcsComponents/UtilComponents/SyntaxHighlighter';
 
 function App() {
   return (
@@ -27,6 +29,8 @@ function App() {
               <Route path="/Repositories/:repoName/timeline" element={<RepositoryDashboard />} />
               <Route path="/About" element={<UserInfo />} />
               <Route path="/Compare/:repoName/:branchName" element={<DiffComponent />} />
+              <Route path="/Repositories/:repoName/BranchTree" element={<RepoBranchTree />} />
+              <Route path="/Syntax" element={<SyntaxHighlighterBlock />} />
               <Route path="/NotFound" element={<NotFound />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

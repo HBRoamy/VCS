@@ -22,6 +22,15 @@ export const getRepositoryByName = async (name) => {
   }
 };
 
+export const getRepositoryBranchTree = async (name) => {
+  try {
+    return await get(`${REPOSITORIES_ENDPOINT}/${encodeURIComponent(name)}/BranchTree`);
+  } catch (error) {
+    console.error('Error fetching the branch tree:', error);
+    throw error;
+  }
+};
+
 export const getRepositoryHistory = async (name) => {
   try {
     return await get(`${REPOSITORIES_ENDPOINT}/${encodeURIComponent(name)}/History`);

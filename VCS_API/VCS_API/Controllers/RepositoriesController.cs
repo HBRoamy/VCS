@@ -4,6 +4,7 @@ using VCS_API.Models;
 using VCS_API.Models.RequestModels;
 using VCS_API.Models.ResponseModels;
 using VCS_API.ServicesV2.Interfaces;
+using static VCS_API.ServicesV2.BranchServiceV2;
 
 namespace VCS_API.Controllers
 {
@@ -152,6 +153,21 @@ namespace VCS_API.Controllers
         public Task<ActionResult> DeleteRepository(string repoName)
         {
            throw new NotImplementedException();
+        }
+
+        [HttpGet($"{Constants.Constants.RepositoryName}/BranchTree")]
+        public async Task<ActionResult<RawNodeDatum?>> GetBranchTree(string repoName)
+        {
+            Validations.ThrowIfNullOrWhiteSpace(repoName);
+
+            var treeRoot = await branchServiceV2.GetBranchTreeForRepoAsync(repoName);
+
+            if (treeRoot != null)
+            {
+                return Ok(treeRoot);
+            }
+
+            return BadRequest("The tree couldn't be formed.");
         }
     }
 }
