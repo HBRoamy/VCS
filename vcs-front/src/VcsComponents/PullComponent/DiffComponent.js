@@ -227,7 +227,7 @@ export default function DiffComponent() {
                                 Create Pull Request
                             </button>
                             : <span className='text-bg-danger badge'>
-                                Merge Conflict
+                                Merge Conflict 
                             </span>}
                     </div>
                     <table className='table table-dark'>
