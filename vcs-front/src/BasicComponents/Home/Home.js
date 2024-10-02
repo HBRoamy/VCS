@@ -6,10 +6,8 @@ export default function () {
 
     const featuresInDevelopment = `
 #### Upcoming features: 
-- Branch Tree Visualizer
 - Backend Stats Dashboard
 - Auth
-- Merge Conflict Visualizer
 - Merge Feature
 - File Directory Support
 - Pull Request Feature

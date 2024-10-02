@@ -1,13 +1,13 @@
 .text-updated
 {
-    background: #ffcd38;
+    background: #efcd52;
     color: #000000 !important;
 }
 
 .text-inserted
 {
-    background: #48d72e;
-    color: #000000 !important;
+    background: #3fb950;
+    color: #ffffff !important;
 }
 
 .text-deleted
@@ -18,13 +18,13 @@
 
 .line-inserted
 {
-    background: #73ff60 !important;
+    background: #3fb950 !important;
     color: #000000 !important;
 }
 
 .line-updated
 {
-    background: #ffd148 !important;
+    background: #efcd52 !important;
     color: #000000 !important;
 }
 
