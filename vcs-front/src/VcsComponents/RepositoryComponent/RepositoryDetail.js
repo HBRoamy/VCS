@@ -3,8 +3,8 @@ import { useParams, Link } from 'react-router-dom'; // Import useParams from rea
 import { getRepositoryByName, getBranchContent } from '../../Services/RepoService';
 import { saveBranchContent } from '../../Services/BranchService';
 import RepositoryBranchForm from './RepositoryBranchForm';
-import MarkdownBlock from '../UtilComponents/MarkdownBlock';
 import SyntaxHighlighterBlock from '../UtilComponents/SyntaxHighlighter';
+import ReadMeBlock from './ReadMeBlock'
 import * as supportedLanguages from 'react-syntax-highlighter/dist/esm/languages/prism';
 import './Styles/Misc.css';
 
@@ -106,22 +106,25 @@ const RepositoryDetail = () => {
     setLanguage(lang);
   }
 
+  const handleCopyClick = (textToCopy) => {
+    navigator.clipboard.writeText(textToCopy);
+  }
+
   return (
     <>
       <div className='card card-body bg-dark text-light mb-4'>
         <div className='row font-montserrat'>
-          <div className='col text-start'>
-            <h1 className='justify-content-start'>
+          <div className='col-lg-8 col-md-8 col-sm-12 text-lg-start text-md-start text-sm-center'>
+            <h1 className=''>
               <span className='text-uppercase'>
                 {repository.name}
                 &nbsp;
-
               </span>
             </h1>
             <p>
               <small>{repository.description}</small>
             </p>
-            <div className='badge bg-default'>
+            <div className='badge bg-default mb-2'>
               Branch:&nbsp;
               <span className="nav-item dropdown dropdown-center">
                 <button className="btn btn-sm btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -156,9 +159,8 @@ const RepositoryDetail = () => {
               </span>
             </div>
           </div>
-          <div className='col'></div>
-          <div className='col'>
-            <div className='badge bg-default align-items-center'>
+          <div className='col-lg-4 col-md-4 col-sm-12'>
+            <div className='badge bg-default'>
               <table className="table table-dark text-white text-start">
                 <tbody>
                   <tr>
@@ -174,21 +176,26 @@ const RepositoryDetail = () => {
                     </td>
                   </tr>
                   <tr>
-                    <td><b>Commit Hash:</b></td>
+                    <td className='pt-3'><b>Commit Hash:</b></td>
                     <td>
                       <span className="badge text-bg-danger" title={currentCommit.hash}>#{currentCommit.hash.substring(0, 7)}...</span>
+                      <button className='btn btn-sm bg-transparent' onClick={() => handleCopyClick(currentCommit.hash)}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-copy" className='text-light' viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z" />
+                        </svg>
+                      </button>
                     </td>
                   </tr>
                 </tbody>
               </table>
-              <span className='btn-group'>
+              <span className='btn-group mt-1'>
                 <Link to={`/Repositories/` + repoName + '/timeline'} className="btn btn-sm btn-outline-warning font-raleway">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock-history" viewBox="0 0 16 16">
                     <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976q.576.129 1.126.342zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .979.654l-.615.789a7 7 0 0 0-.418-.302zm1.834 1.79a7 7 0 0 0-.653-.796l.724-.69q.406.429.747.91zm.744 1.352a7 7 0 0 0-.214-.468l.893-.45a8 8 0 0 1 .45 1.088l-.95.313a7 7 0 0 0-.179-.483m.53 2.507a7 7 0 0 0-.1-1.025l.985-.17q.1.58.116 1.17zm-.131 1.538q.05-.254.081-.51l.993.123a8 8 0 0 1-.23 1.155l-.964-.267q.069-.247.12-.501m-.952 2.379q.276-.436.486-.908l.914.405q-.24.54-.555 1.038zm-.964 1.205q.183-.183.35-.378l.758.653a8 8 0 0 1-.401.432z" />
                     <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0z" />
                     <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5" />
                   </svg>
-                  &nbsp; Repo History
+                  &nbsp; Repo TimeLine
                 </Link>
                 <Link to={`/Repositories/` + repoName + '/BranchTree'} className="btn btn-sm btn-outline-warning font-raleway">
                   Branch Tree
@@ -197,7 +204,7 @@ const RepositoryDetail = () => {
             </div>
           </div>
         </div>
-        <div className="card card-body mt-2 code-bg text-light text-start">
+        <div className="card card-body mt-2 code-bg text-light">
           {editError && <p className="text-danger">{editError}</p>} {/* Display save errors */}
           {isEditing ? (
             <div>
@@ -296,15 +303,9 @@ const RepositoryDetail = () => {
           )}
         </div>
       </div>
-      <div className='row'>
-        <div className='col'>
-          <div className='card bg-default text-start p-2'>
-            <div className='card-body bg-dark'>
-              {repository && <MarkdownBlock classes={'text-light'} content={repository.readMeBody} />}
-            </div>
-          </div>
-        </div>
-      </div>
+      <>
+        <ReadMeBlock repoName={repoName} readMeContent={repository?.readMeBody} />
+      </>
     </>
   );
 };

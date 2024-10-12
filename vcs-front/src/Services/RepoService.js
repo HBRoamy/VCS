@@ -70,6 +70,15 @@ export const createBranch = async (repoName, branchName, branchData) => {
   }
 };
 
+export const saveRepoReadMe = async (repoName, contentBody) => {
+  try {
+    return await post(`${REPOSITORIES_ENDPOINT}/${encodeURIComponent(repoName)}/v2/ReadMe`, contentBody);
+  } catch (error) {
+    console.error('Error updating the readme:', error);
+    throw error;
+  }
+};
+
 // Function to delete a repository by its ID
 export const deleteRepository = async (repoName) => {
   try {

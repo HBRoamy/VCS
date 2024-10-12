@@ -19,7 +19,7 @@ namespace VCS_API.DirectoryDB.Repositories
 
                 await DirectoryDB.WriteToFileAsync(DBPaths.RepoStorePath(), repoEntryRow, canCreateDirectory: true);
                 var createdRepo = DeserializeRowEntry(repoEntryRow)!;
-                createdRepo.ReadMeBody = await UpdateReadMe(repositoryEntity?.Name!, "# ReadMe");
+                createdRepo.ReadMeBody = await UpdateReadMe(repositoryEntity?.Name!, "# ReadMe", canCreateDirectory: true);
                 AuditLogsRepo.Log(repositoryEntity?.Name, $"Created the repository \'{repositoryEntity?.Name}\'.");
 
                 return createdRepo;
@@ -93,12 +93,12 @@ namespace VCS_API.DirectoryDB.Repositories
             }
         }
 
-        public async Task<string> UpdateReadMe(string repoName, string body)
+        public async Task<string> UpdateReadMe(string repoName, string body, bool canCreateDirectory = false)
         {
             try
             {
                 Validations.ThrowIfNullOrWhiteSpace(repoName, body);
-                await DirectoryDB.WriteToFileAsync(DBPaths.ReadMeLOBPath(repoName), body, append: false, canCreateDirectory: true);
+                await DirectoryDB.WriteToFileAsync(DBPaths.ReadMeLOBPath(repoName), body, append: false, canCreateDirectory);
                 AuditLogsRepo.Log(repoName, $"Updated the ReadMe for the repository \'{repoName}\'.");
 
                 return body;

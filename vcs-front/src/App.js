@@ -20,7 +20,7 @@ function App() {
         <Header />
 
         <main className="flex-grow-1">
-          <div className="container">
+          <div className="container" style={{ marginBottom: '60px' }}>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/Repositories/New" element={<RepositoryForm />} />

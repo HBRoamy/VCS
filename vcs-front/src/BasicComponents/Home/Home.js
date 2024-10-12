@@ -9,10 +9,9 @@ export default function () {
 - Backend Stats Dashboard
 - Auth
 - Merge Feature
-- File Directory Support
+- File Directory Support (Not planned yet)
 - Pull Request Feature
 - Commit History
-- Syntax Highlighter
     `;
 
     return (

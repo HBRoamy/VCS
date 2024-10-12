@@ -99,19 +99,24 @@ namespace VCS_API.ServicesV2
             return null;
         }
 
-        public Task<RepositoryEntity?> UpdateRepoReadMe(string? repoName)
+        public async Task<string> UpdateRepoReadMe(string? repoName, string content)
         {
             try
             {
                 Validations.ThrowIfNullOrWhiteSpace(repoName);
+                if ((await GetRepoAsync(repoName)) == null)
+                {
+                    throw new InvalidOperationException("The repo doesn't exist.");
+                }
 
+                return await repositoryRepo.UpdateReadMe(repoName!, content, true);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occured in the method \'{nameof(UpdateRepoReadMe)}\' " + ex.Message);
             }
 
-            throw new NotImplementedException();
+            return string.Empty;
         }
     }
 }

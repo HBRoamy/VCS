@@ -134,6 +134,23 @@ namespace VCS_API.Controllers
             }
         }
 
+        [HttpPost($"{Constants.Constants.RepositoryName}/v2/ReadMe")]
+        public async Task<ActionResult<string>> UpdateRepoReadme([FromRoute] string repoName, [FromBody] string readmeBody)
+        {
+            try
+            {
+                Validations.ThrowIfNullOrWhiteSpace(repoName);
+
+                var response = await repoServiceV2.UpdateRepoReadMe(repoName, readmeBody);
+                Validations.ThrowIfNull(response);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpGet("{repoName}/{branchName}/v2")]
         public async Task<ActionResult<BranchEntity?>> GetBranchV2(string repoName, string branchName, [FromQuery] string? commitHash)
         {

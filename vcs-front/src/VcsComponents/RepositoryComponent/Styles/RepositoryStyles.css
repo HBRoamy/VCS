@@ -59,6 +59,26 @@
     background-color: #16273a !important;
 }
 
+.save-color
+{
+    color:rgb(52, 235, 52) !important;
+}
+
+.save-color:hover
+{
+    color:rgb(0, 186, 0) !important;
+}
+
+.cancel-color
+{
+    color:rgb(255, 92, 92) !important;
+}
+
+.cancel-color:hover
+{
+    color:rgb(255, 60, 60) !important;
+}
+
 .bg-dimmed-approve{
     background: white !important;
     transition: all 0.3s ease-out;

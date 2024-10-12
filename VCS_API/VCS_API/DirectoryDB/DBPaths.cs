@@ -52,7 +52,7 @@ namespace VCS_API.DirectoryDB
         {
             Validations.ThrowIfNullOrWhiteSpace(id);
 
-            return Path.Combine(ParentPath, LOBs, "MarkdownLOBs", $"{id}.md");
+            return Path.Combine(ParentPath, LOBs, "#MarkdownLOBs", $"{id}.md");
         }
 
         public static string ReadMeLOBPath(string repoName)
