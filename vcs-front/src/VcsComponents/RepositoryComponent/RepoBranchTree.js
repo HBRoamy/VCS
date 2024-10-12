@@ -15,6 +15,7 @@ function RepoBranchTree() {
     const [zoomChecked, setZoomChecked] = useState(true);
     const [dragChecked, setDragChecked] = useState(true);
     const [verticalChecked, setVerticalChecked] = useState(true);
+    const [treeStyle, setTreeStyle] = useState('diagonal');
 
     useEffect(() => {
         const fetchHistory = async () => {
@@ -35,6 +36,9 @@ function RepoBranchTree() {
         fetchHistory();
     }, [repoName]);
 
+    const handleStyleChange = (style) => {
+        setTreeStyle(style)
+    }
 
     // Handlers for checkboxes
     const handleZoomChange = (e) => {
@@ -93,6 +97,33 @@ function RepoBranchTree() {
             <h3 className='text-light h3 font-montserrat'>{repoName} Branch Tree</h3>
             <div className='bg-light rounded'>
                 <div className=''>
+                    <span className="nav-item dropdown dropdown-center">
+                        <button className="btn btn-sm text-bg-warning dropdown-toggle mb-2 float-end mt-1 me-1" data-bs-toggle="dropdown" aria-expanded="false">
+                            {treeStyle}
+                        </button>
+                        <ul className="dropdown-menu dropdown-menu-dark p-0">
+                            <li>
+                                <button className="dropdown-item" onClick={() => handleStyleChange('diagonal')}>
+                                    diagonal
+                                </button>
+                            </li>
+                            <li>
+                                <button className="dropdown-item" onClick={() => handleStyleChange('step')}>
+                                    step
+                                </button>
+                            </li>
+                            <li>
+                                <button className="dropdown-item" onClick={() => handleStyleChange('straight')}>
+                                    straight
+                                </button>
+                            </li>
+                            <li>
+                                <button className="dropdown-item" onClick={() => handleStyleChange('elbow')}>
+                                    elbow
+                                </button>
+                            </li>
+                        </ul>
+                    </span>
                     <div className='rounded badge mt-2 w-auto fw-bold font-raleway'>
                         <div className="form-control text-start">
                             <label>
@@ -101,7 +132,7 @@ function RepoBranchTree() {
                                     checked={zoomChecked}
                                     onChange={handleZoomChange}
                                 />
-                                Enable Zoom
+                                &nbsp;Enable Zoom
                             </label>
                             <br />
                             <label>
@@ -110,7 +141,7 @@ function RepoBranchTree() {
                                     checked={dragChecked}
                                     onChange={handleDragChange}
                                 />
-                                Enable Drag
+                                &nbsp;Enable Drag
                             </label>
                             <br />
                             <label>
@@ -119,7 +150,7 @@ function RepoBranchTree() {
                                     checked={verticalChecked}
                                     onChange={handleOrientationChange}
                                 />
-                                Vertical Orientation
+                                &nbsp;Vertical Orientation
                             </label>
                         </div>
                     </div>
@@ -133,14 +164,14 @@ function RepoBranchTree() {
                 }}>
                     <Tree
                         data={treeData}
-                        orientation= {isVertical?  "vertical": "horizontal" }
+                        orientation={isVertical ? "vertical" : "horizontal"}
                         zoomable={canZoom}
                         draggable={canDrag}
                         translate={{ x: 500, y: 100 }} // Adjust this to center the tree better
                         rootNodeClassName="node__root"
                         branchNodeClassName="node__branch"
                         leafNodeClassName="node__leaf"
-                        pathFunc={'diagonal'} // step, straight, elbow, diagonal
+                        pathFunc={treeStyle} // step, straight, elbow, diagonal
                         nodeSize={nodeSize}
                     />
                 </div>
