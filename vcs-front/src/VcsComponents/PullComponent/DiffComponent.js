@@ -8,6 +8,7 @@ import MarkdownBlock from "../UtilComponents/MarkdownBlock";
 export default function DiffComponent() {
     const { repoName, branchName } = useParams();
     const [isMergeable, setIsMergeable] = useState(false);
+    const [isResolved, setIsResolved] = useState(false);
     const [data, setData] = useState(null);
     const [oldChanges, setOldChanges] = useState([]);
     const [newChanges, setNewChanges] = useState([]);
@@ -53,8 +54,9 @@ export default function DiffComponent() {
                     // Initialize selectedLines state with false for both sides (old and new changes)
                     setSelectedLines(Array(Math.max(processedOldChanges.length, processedNewChanges.length)).fill({ old: false, new: false }));
 
-
                     setIsMergeable(response.isMergeable);
+                    console.warn('MAIN USEEFFECT' + isMergeable);
+
                     setOldChanges(processedOldChanges);
                     setNewChanges(processedNewChanges);
                     setData(response);
@@ -76,7 +78,7 @@ export default function DiffComponent() {
         const allLinesResolved = selectedLines.every(
             (line) => (line.old && !line.new) || (!line.old && line.new) // Ensure only one side is selected for each line
         );
-        setIsMergeable(allLinesResolved);
+        setIsResolved(allLinesResolved);
     }, [selectedLines]);
 
 
@@ -171,7 +173,6 @@ export default function DiffComponent() {
         });
     };
 
-
     const allLinesResolved = selectedLines.every(line => (line.old && !line.new) || (!line.old && line.new));
 
     const handleMerge = () => {
@@ -195,14 +196,19 @@ export default function DiffComponent() {
 
     const handleSubmitClick = async () => {
         try {
-            const joinedLines = mergedLines.join('\n');
+            setLoading(true);
+            const joinedLines = mergedLines.map(line => line.text).join('\n');
             const formData = {
                 message: commitMessage, // Use the commit message from the state
                 content: joinedLines
             };
             await saveBranchContent(repoName, data.branchName, formData);
+            window.location.reload();
         } catch (error) {
-            console.error('Error saving content:', error);
+            setError("An error occurred while committing the changes.")
+        }
+        finally {
+            setLoading(false);
         }
     };
 
@@ -217,56 +223,76 @@ export default function DiffComponent() {
                     <div className='card card-body bg-default badge mb-2'>
                         <MarkdownBlock classes={'text-light'} content={createMarkdownStatement(data.branchName, data.branchCommitHash, data.baseBranchName, data.baseBranchCommitHash)} />
                     </div>
-                    {/* <div className="text-light m-2">
-                        {isMergeable ?
-                            <button className='btn btn-success btn-sm badge position-relative'>
-                                <svg fill="#fff" width="20" height="20" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M385,224a64,64,0,0,0-55.33,31.89c-42.23-1.21-85.19-12.72-116.21-31.33-32.2-19.32-49.71-44-52.15-73.35a64,64,0,1,0-64.31.18V360.61a64,64,0,1,0,64,0V266.15c44.76,34,107.28,52.38,168.56,53.76A64,64,0,1,0,385,224ZM129,64A32,32,0,1,1,97,96,32,32,0,0,1,129,64Zm0,384a32,32,0,1,1,32-32A32,32,0,0,1,129,448ZM385,320a32,32,0,1,1,32-32A32,32,0,0,1,385,320Z" />
-                                </svg>
-                                &nbsp;
-                                Create Pull Request
-                            </button>
-                            : <span className='text-bg-danger badge'>
-                                Merge Conflict 
-                            </span>}
-                    </div> */}
+                    {
+                        <div className="text-light m-2">
+                            {isMergeable ?
+                                <button className='btn btn-success btn-sm badge position-relative'>
+                                    <svg fill="#fff" width="20" height="20" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M385,224a64,64,0,0,0-55.33,31.89c-42.23-1.21-85.19-12.72-116.21-31.33-32.2-19.32-49.71-44-52.15-73.35a64,64,0,1,0-64.31.18V360.61a64,64,0,1,0,64,0V266.15c44.76,34,107.28,52.38,168.56,53.76A64,64,0,1,0,385,224ZM129,64A32,32,0,1,1,97,96,32,32,0,0,1,129,64Zm0,384a32,32,0,1,1,32-32A32,32,0,0,1,129,448ZM385,320a32,32,0,1,1,32-32A32,32,0,0,1,385,320Z" />
+                                    </svg>
+                                    &nbsp;
+                                    Pull Request
+                                </button>
+                                : <>
+                                <span className='text-danger font-montserrat'>Merge Conflict</span>
+                                </>}
+                        </div>
+                    }
                     <table className='table table-dark'>
                         <thead>
                             <tr className="text-light">
-                                <th><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-slash-minus" viewBox="0 0 16 16">
-                                    <path d="m1.854 14.854 13-13a.5.5 0 0 0-.708-.708l-13 13a.5.5 0 0 0 .708.708M4 1a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 4 1m5 11a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5A.5.5 0 0 1 9 12" />
-                                </svg></th>
+                                {
+                                    !isMergeable ? (
+                                        <th><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-slash-minus" viewBox="0 0 16 16">
+                                            <path d="m1.854 14.854 13-13a.5.5 0 0 0-.708-.708l-13 13a.5.5 0 0 0 .708.708M4 1a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 4 1m5 11a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5A.5.5 0 0 1 9 12" />
+                                        </svg></th>
+                                    ) : (<></>)
+                                }
+
                                 <th>{data.baseBranchName}</th>
                                 <th>{data.branchName}</th>
-                                <th><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-slash-minus" viewBox="0 0 16 16">
-                                    <path d="m1.854 14.854 13-13a.5.5 0 0 0-.708-.708l-13 13a.5.5 0 0 0 .708.708M4 1a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 4 1m5 11a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5A.5.5 0 0 1 9 12" />
-                                </svg></th>
+
+                                {
+                                    !isMergeable ? (
+                                        <th><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-slash-minus" viewBox="0 0 16 16">
+                                            <path d="m1.854 14.854 13-13a.5.5 0 0 0-.708-.708l-13 13a.5.5 0 0 0 .708.708M4 1a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 4 1m5 11a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5A.5.5 0 0 1 9 12" />
+                                        </svg></th>
+                                    ) : (<></>)
+                                }
                             </tr>
                         </thead>
                         <tbody>
                             {maxLength > 0 ? (
                                 Array.from({ length: maxLength }).map((_, index) => (
                                     <tr key={index}>
-                                        <td>
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedLines[index]?.old || false}
-                                                onChange={() => handleCheckboxChange(index, 'old')}
-                                                disabled={selectedLines[index]?.new} // Disable old side if new side is selected
-                                                className='form-check-input'
-                                            />
-                                        </td>
+                                        {
+                                            !isMergeable ? (
+                                                <td>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedLines[index]?.old || false}
+                                                        onChange={() => handleCheckboxChange(index, 'old')}
+                                                        disabled={selectedLines[index]?.new} // Disable old side if new side is selected
+                                                        className='form-check-input'
+                                                    />
+                                                </td>
+                                            ) : (<></>)
+                                        }
                                         {oldChanges[index] ? renderChanges(oldChanges[index]) : <td></td>}
                                         {newChanges[index] ? renderChanges(newChanges[index]) : <td></td>}
-                                        <td>
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedLines[index]?.new || false}
-                                                onChange={() => handleCheckboxChange(index, 'new')}
-                                                disabled={selectedLines[index]?.old} // Disable new side if old side is selected
-                                                className='form-check-input'
-                                            />
-                                        </td>
+                                        {
+                                            !isMergeable ? (
+                                                <td>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedLines[index]?.new || false}
+                                                        onChange={() => handleCheckboxChange(index, 'new')}
+                                                        disabled={selectedLines[index]?.old} // Disable new side if old side is selected
+                                                        className='form-check-input'
+                                                    />
+                                                </td>
+                                            ) : (<></>)
+                                        }
                                     </tr>
                                 ))
                             ) : (
@@ -276,9 +302,9 @@ export default function DiffComponent() {
                             )}
                         </tbody>
                     </table>
-                    <div className="mt-4 card card-body bg-default">
+                    <div>
                         {mergedLines.length > 0 ? (
-                            <>
+                            <div className="mt-4 card card-body bg-default">
                                 <h4 className='text-light font-raleway'><svg fill="#fff" width="20" height="20" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><title>ionicons-v5-d</title><path d="M218.31,340.69A16,16,0,0,0,191,352v32H171a28,28,0,0,1-28-28V152a64,64,0,1,0-64-1.16V356a92.1,92.1,0,0,0,92,92h20v32a16,16,0,0,0,27.31,11.31l64-64a16,16,0,0,0,0-22.62ZM112,64A32,32,0,1,1,80,96,32,32,0,0,1,112,64Z" /><path d="M432,360.61V156a92.1,92.1,0,0,0-92-92H320V32a16,16,0,0,0-27.31-11.31l-64,64a16,16,0,0,0,0,22.62l64,64A16,16,0,0,0,320,160V128h20a28,28,0,0,1,28,28V360.61a64,64,0,1,0,64,0ZM400,448a32,32,0,1,1,32-32A32,32,0,0,1,400,448Z" /></svg> Commit New State</h4>
                                 <table className="table table-dark table-hover mb-4">
                                     <tbody>
@@ -294,7 +320,7 @@ export default function DiffComponent() {
                                     </tbody>
                                 </table>
                                 {
-                                    isMergeable ? (
+                                    isResolved ? (
                                         <div className='bg-dark text-light font-montserrat'>
                                             <div class="input-group">
                                                 <span className="form-floating">
@@ -304,17 +330,18 @@ export default function DiffComponent() {
                                                         placeholder="Describe the change"
                                                         onChange={(e) => setCommitMessage(e.target.value)}
                                                         id='CommitMessageBox'
+                                                        disabled={loading}
                                                     />
                                                     <label for="CommitMessageBox" className='text-dark font-raleway'>Describe the change</label>
                                                 </span>
-                                                <button className="btn btn-sm bg-dimmed-approve" onClick={handleSubmitClick}>
+                                                <button className="btn btn-sm bg-dimmed-approve" onClick={handleSubmitClick} disabled={loading}>
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
                                                         fill="currentColor" class="bi bi-check2" viewBox="0 0 16 16">
                                                         <path
                                                             d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" />
                                                     </svg>
                                                 </button>
-                                                <button className="btn btn-sm bg-dimmed-decline" onClick={handleCancelClick}>
+                                                <button className="btn btn-sm bg-dimmed-decline" onClick={handleCancelClick} disabled={loading}>
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                         fill="currentColor" class="bi mb-1 bi-x-lg" viewBox="0 0 16 16">
                                                         <path
@@ -324,19 +351,20 @@ export default function DiffComponent() {
                                             </div>
                                         </div>
                                     ) :
-                                    (
-                                        <>
-                                        </>
-                                    )
+                                        (
+                                            <>
+                                            </>
+                                        )
                                 }
-                            </>
+                            </div>
                         ) : (
                             <>
                             </>
                         )}
                     </div>
                 </>
-            )}
+            )
+            }
         </div>
     );
 }

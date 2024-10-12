@@ -97,6 +97,16 @@
   background-color: #172b4d !important;
 }
 
+.add-btn {
+  background-color: #0e48ac !important;
+  color: #fff !important;
+}
+
+.add-btn:hover {
+  background-color: #335b9f !important;
+  color: #fff !important;
+}
+
 .btn-orange
 {
   color:white !important;

@@ -51,9 +51,13 @@ const RepositoryList = () => {
 
                                 <div className="col">
                                     <div className="card bg-default">
-                                        <div className="card-header bg-transparent border-0">
+                                        <div className="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
                                             <h3 className="text-white mb-0 font-raleway">Repositories</h3>
+                                            <Link to={`/Repositories/New`} className="btn btn-sm add-btn font-raleway">
+                                                + New Repository
+                                            </Link>
                                         </div>
+
                                         <div className="table-responsive">
                                             <table className="table table-hover text-start table-dark table-flush">
                                                 <thead className='font-raleway thead-dark shadow'>

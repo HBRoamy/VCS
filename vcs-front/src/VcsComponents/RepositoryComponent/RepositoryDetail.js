@@ -4,6 +4,9 @@ import { getRepositoryByName, getBranchContent } from '../../Services/RepoServic
 import { saveBranchContent } from '../../Services/BranchService';
 import RepositoryBranchForm from './RepositoryBranchForm';
 import MarkdownBlock from '../UtilComponents/MarkdownBlock';
+import SyntaxHighlighterBlock from '../UtilComponents/SyntaxHighlighter';
+import * as supportedLanguages from 'react-syntax-highlighter/dist/esm/languages/prism';
+import './Styles/Misc.css';
 
 const RepositoryDetail = () => {
   const { repoName } = useParams(); // Extract repoName from URL params
@@ -16,6 +19,8 @@ const RepositoryDetail = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState('');
   const [commitMessage, setCommitMessage] = useState(''); // New state for commit message
+  const [language, setLanguage] = useState('javascript');
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchRepository = async () => {
@@ -41,6 +46,12 @@ const RepositoryDetail = () => {
 
     fetchRepository();
   }, [repoName]); // Dependency array to refetch if repoName changes
+
+  const languageOptions = Object.keys(supportedLanguages);
+
+  const filteredLanguages = languageOptions.filter((lang) =>
+    lang.toLowerCase().startsWith(searchTerm.toLowerCase())
+  );
 
   if (loading) {
     return <p className='text-light'>Loading repository details...</p>;
@@ -91,6 +102,10 @@ const RepositoryDetail = () => {
     setEditError(null); // Clear any previous save errors
   };
 
+  const handleLanguageChange = (lang) => {
+    setLanguage(lang);
+  }
+
   return (
     <>
       <div className='card card-body bg-dark text-light mb-4'>
@@ -115,7 +130,7 @@ const RepositoryDetail = () => {
                 <ul className="dropdown-menu dropdown-menu-dark">
                   {repository.branches.map((branch) => (
                     <li key={branch.name}>
-                      <button className="dropdown-item" onClick={() => handleBranchChange(branch.name)} href="#">{branch.name} [based on {branch.parentBranchName}]</button>
+                      <button className="dropdown-item" onClick={() => handleBranchChange(branch.name)} href="#">{branch.name}</button>
                     </li>
                   ))}
                 </ul>
@@ -225,15 +240,38 @@ const RepositoryDetail = () => {
             </div>
           ) : (
             <div>
+              <span className="nav-item dropdown dropdown-center">
+                <button className="btn btn-sm btn-dark dropdown-toggle mb-2 float-end" data-bs-toggle="dropdown" aria-expanded="false">
+                  {language}
+                </button>
+                <ul className="dropdown-menu dropdown-menu-dark p-0">
+                  <input
+                    type="text"
+                    className="form-control form-control-sm mb-2 bg-dark text-light searchbox border-0"
+                    placeholder="Filter Languages..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  {
+                    filteredLanguages.length > 0 ? (
+                      filteredLanguages.map((lang) => (
+                        <li key={lang}>
+                          <button className="dropdown-item" onClick={() => handleLanguageChange(lang)}>
+                            {lang}
+                          </button>
+                        </li>
+                      ))
+                    ) : (
+                      <li className="text-danger px-2">No results found</li>
+                    )
+                  }
+                </ul>
+              </span>
               <div className='rounded bg-dark p-2'>
-                <pre>
-                  <code>
-                    {currentCommit?.content}
-                  </code>
-                </pre>
+                <SyntaxHighlighterBlock content={currentCommit?.content} language={language} />
               </div>
               <hr />
-              <button className="btn btn-sm text-bg-warning" onClick={handleEditClick}>
+              <button className="btn btn-sm text-bg-warning float-end" onClick={handleEditClick}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square mb-1" viewBox="0 0 16 16">
                   <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
                   <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
@@ -243,7 +281,7 @@ const RepositoryDetail = () => {
               {
                 currentBranch === 'Master' || currentBranch === 'master' || currentBranch === '' || commitMessage === null ?
                   <span></span>
-                  : <span className='ms-1'>
+                  : <span className='me-1 float-end'>
                     <Link to={`/Compare/` + repoName + '/' + currentBranch} className="btn btn-sm btn-success font-raleway">
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="19" fill="currentColor" class="bi bi-file-diff" viewBox="0 0 16 16">
                         <path d="M8 4a.5.5 0 0 1 .5.5V6H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V7H6a.5.5 0 0 1 0-1h1.5V4.5A.5.5 0 0 1 8 4m-2.5 6.5A.5.5 0 0 1 6 10h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1-.5-.5" />
