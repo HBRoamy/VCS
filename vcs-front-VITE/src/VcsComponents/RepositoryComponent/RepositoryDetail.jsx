@@ -114,7 +114,7 @@ const RepositoryDetail = () => {
     <>
       <div className='card card-body bg-dark text-light mb-4'>
         <div className='row font-montserrat'>
-          <div className='col-lg-8 col-md-8 col-sm-12 text-lg-start text-md-start text-sm-center'>
+          <div className='col-lg-8 col-md-6 col-sm-12 text-lg-start text-md-start text-sm-center'>
             <h1 className=''>
               <span className='text-uppercase'>
                 {repository.name}
@@ -159,7 +159,7 @@ const RepositoryDetail = () => {
               </span>
             </div>
           </div>
-          <div className='col-lg-4 col-md-4 col-sm-12'>
+          <div className='col-lg-4 col-md-6 col-sm-12'>
             <div className='badge bg-default'>
               <table className="table table-dark text-white text-start">
                 <tbody>
