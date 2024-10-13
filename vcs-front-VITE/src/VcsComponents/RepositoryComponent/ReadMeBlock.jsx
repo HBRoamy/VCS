@@ -10,6 +10,7 @@ const ReadMeBlock = ({ repoName, readMeContent }) => {
     const [editError, setEditError] = useState(null); // New state for save error
     const [isEditing, setIsEditing] = useState(false);
     const [editContent, setEditContent] = useState(readMeContent);
+    const [showToast, setShowToast] = useState(false);
 
     useEffect(() => {
         const InitializeReadme = async () => {
@@ -67,22 +68,42 @@ const ReadMeBlock = ({ repoName, readMeContent }) => {
         setEditError(null); // Clear any previous save errors
     };
 
+    const alignLeft = () => {
+        const alignedContent = editContent
+            .split('\n') // Split the text by lines
+            .map(line => line.trimStart()) // Remove leading spaces/tabs from each line
+            .join('\n'); // Join the lines back together
+        setEditContent(alignedContent); // Set the aligned content back
+    };
+
+
+
     return (
         <>
             <div className="card card-body mt-2 code-bg text-light text-start">
                 <span className='font-raleway text-light text-wrap badge'>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle text-info mb-1" viewBox="0 0 16 16">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-info-circle text-info mb-1" viewBox="0 0 16 16">
                         <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
                         <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
                     </svg>&nbsp;
-                    ReadMe's are repository-level only and are <span className='text-warning'>not source-controlled.</span>
+                    &nbsp;ReadMe's are repository-level only and are <span className='text-warning'>not source-controlled.</span>
                 </span>
                 {editError && <p className="text-danger">{editError}</p>}
                 {isEditing ? (
                     <div className='bg-default'>
                         <div className='float-end mt-2 me-2'>
                             <div className="input-group">
-
+                                {
+                                    !isPreviewMode ? (
+                                        <button className="btn btn-sm text-primary bg-dark" onClick={alignLeft} title='Align Left'>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-text-left" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M2 12.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5m0-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5" />
+                                            </svg>
+                                        </button>
+                                    ) : (
+                                        <></>
+                                    )
+                                }
                                 <button className="btn btn-sm text-warning bg-dark" onClick={() => setIsPreviewMode(!isPreviewMode)}>
                                     {isPreviewMode ? (
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-eye-slash pb-1" viewBox="0 0 16 16">
@@ -97,7 +118,30 @@ const ReadMeBlock = ({ repoName, readMeContent }) => {
                                         </svg>
                                     )}
                                 </button>
-
+                                <span className='font-raleway'>
+                                    <button type="button" className="btn btn-sm text-secondary bg-dark" onClick={() => setShowToast(!showToast)}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-info-circle text-info" viewBox="0 0 16 16">
+                                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                                            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                                        </svg>
+                                    </button>
+                                </span>
+                                {showToast && (
+                                    <div className="toast-container position-fixed top-50 start-50 translate-middle">
+                                        <div className="toast show align-items-center text-bg-dark border-1 border-secondary" role="alert" aria-live="assertive" aria-atomic="true">
+                                            <div className="d-flex">
+                                                <div className="toast-body">
+                                                    <ul class="list-group">
+                                                        <li class="list-group-item list-group-item-info">All text needs to be left-aligned to display properly.</li>
+                                                        <li class="list-group-item list-group-item-success">HTML and Bootstrap are supported.</li>
+                                                        <li class="list-group-item list-group-item-danger">Any scripts or event handlers will not be rendered.</li>
+                                                    </ul>
+                                                </div>
+                                                <button type="button" className="btn-close btn-close-white me-2 m-auto border border-2 border-secondary rounded p-2" onClick={() => setShowToast(!showToast)} aria-label="Close"></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                                 <button className="btn btn-sm save-color border-0 bg-dark" onClick={handleSaveClick} disabled={editContent === readMeContent}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" className="bi bi-check2" viewBox="0 0 16 16">
                                         <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" />
@@ -139,7 +183,7 @@ const ReadMeBlock = ({ repoName, readMeContent }) => {
                         <div className='col'>
                             <div className='card bg-dark p-1'>
                                 <div className='card-body bg-dark'>
-                                    <span className='text-bg-warning badge text-wrap'>HTML and Bootstrap Supported (Script code and event handlers will not be shown to prevent XSS attacks.)</span>
+
                                     <button className="btn btn-sm text-light float-end" onClick={handleEditClick} title='Edit'>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square mb-1" viewBox="0 0 16 16">
                                             <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
@@ -152,7 +196,7 @@ const ReadMeBlock = ({ repoName, readMeContent }) => {
                         </div>
                     </div>
                 )}
-            </div>
+            </div >
         </>
     )
 }
