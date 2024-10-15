@@ -83,6 +83,20 @@ namespace VCS_API.ServicesV2
             return null;
         }
 
+        public async Task<CommitEntity?> GetLatestMergeCommitOrDefaultAsync(string? repoName, string? branchName, string? mergedBranchName, bool includeContent = true)
+        {
+            try
+            {
+                return await commitRepo.GetLatestMergeCommitAsync(repoName, branchName, mergedBranchName, includeContent);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occured in the method \'{nameof(GetLatestMergeCommitOrDefaultAsync)}\' " + ex.Message);
+            }
+
+            return null;
+        }
+
         public async Task<CommitEntity?> GetCommitAsync(string? repoName, string? branchName, string? commitHash)
         {
             try

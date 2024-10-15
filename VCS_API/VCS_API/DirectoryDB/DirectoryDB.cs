@@ -1,4 +1,5 @@
-﻿using VCS_API.DirectoryDB.Helpers;
+﻿using System.Text;
+using VCS_API.DirectoryDB.Helpers;
 using VCS_API.Extensions;
 using VCS_API.Helpers;
 
@@ -223,6 +224,112 @@ namespace VCS_API.DirectoryDB
                 await File.WriteAllTextAsync(filePath, string.Empty);
             }
             else throw new FileNotFoundException(filePath);
+        }
+
+        /// <summary>
+        /// Searches from last to first. Memory-wise its bad, since we are loading all the data in the memory. 
+        /// But it won't be a frequent operation. THIS HAS TO BE OPTIMIZED IN THE FUTURE when we move to a real DB.
+        /// </summary>
+        /// <param name="filepath"></param>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public static async Task<string?> LastOrDefaultRowAsync(string? filePath, Func<string, bool> predicate)
+        {
+            Validations.ThrowIfNullOrWhiteSpace(filePath);
+
+            if (!File.Exists(filePath))
+            {
+                return null;
+            }
+
+            var allLines = await File.ReadAllLinesAsync(filePath);
+
+            // Process lines in reverse order
+            for (int i = allLines.Length - 1; i >= 0; i--)
+            {
+                var line = allLines[i];
+
+                if (string.IsNullOrWhiteSpace(line)) continue;
+
+                if (predicate(line))
+                {
+                    return line.CleanData();
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// ChatGPT implementation which doesn't load all the data in the memory at once. Untested.
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public static async Task<string?> LastOrDefaultRowAsync2(string filePath, Func<string, bool> predicate)
+        {
+            Validations.ThrowIfNullOrWhiteSpace(filePath);
+
+            if (!File.Exists(filePath))
+                return null;
+
+            const int bufferSize = 1024; // Buffer size to read chunks from the file
+            char[] buffer = new char[bufferSize];
+            StringBuilder sb = new StringBuilder();
+
+            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                long filePosition = fs.Length;
+                using (StreamReader reader = new StreamReader(fs))
+                {
+                    while (filePosition > 0)
+                    {
+                        // Move the file pointer backwards by bufferSize (or remaining file length)
+                        filePosition = Math.Max(filePosition - bufferSize, 0);
+                        fs.Seek(filePosition, SeekOrigin.Begin);
+
+                        // Read a chunk of the file
+                        int charsRead = await reader.ReadAsync(buffer, 0, bufferSize);
+                        for (int i = charsRead - 1; i >= 0; i--)
+                        {
+                            char currentChar = buffer[i];
+
+                            // Handle line breaks (Unix LF or Windows CRLF)
+                            if (currentChar == '\n' || currentChar == '\r')
+                            {
+                                if (sb.Length > 0)
+                                {
+                                    var line = sb.ToString();
+                                    sb.Clear();
+
+                                    // Process the line if it's not empty and matches the predicate
+                                    if (!string.IsNullOrWhiteSpace(line) && predicate(line))
+                                    {
+                                        return line.CleanData();
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                // Add character to the StringBuilder (reversed direction)
+                                sb.Insert(0, currentChar);
+                            }
+                        }
+                    }
+
+                    // Handle any leftover content if the last line doesn't end with a newline
+                    if (sb.Length > 0)
+                    {
+                        var line = sb.ToString();
+                        if (!string.IsNullOrWhiteSpace(line) && predicate(line))
+                        {
+                            return line.CleanData();
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
 
         public static async Task<string?> LastOrDefaultRowAsync(string? filePath)

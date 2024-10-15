@@ -3,9 +3,13 @@ import { get, post} from './APIService';
 const BRANCHES_ENDPOINT = '/api/v1/Branches';
 
 // Function to get all repositories
-export const saveBranchContent = async (repoName, branchName, body) => {
+export const saveBranchContent = async (repoName, branchName, body, mergeCommitHash = null) => {
   try {
-    return await post(`${BRANCHES_ENDPOINT}/${encodeURIComponent(repoName)}/${encodeURIComponent(branchName)}/CommitV2`, body);
+    // Build the URL based on whether mergeCommitHash is provided or not
+    const url = `${BRANCHES_ENDPOINT}/${encodeURIComponent(repoName)}/${encodeURIComponent(branchName)}/CommitV2`;
+    const finalUrl = mergeCommitHash ? `${url}?mergeBranchCommitHash=${encodeURIComponent(mergeCommitHash)}` : url;
+
+    return await post(finalUrl, body);
   } catch (error) {
     console.error('Error while committing the change:', error);
     throw error;

@@ -9,5 +9,6 @@ namespace VCS_API.DirectoryDB.Repositories.Interfaces
         public Task<CommitEntity?> GetLatestCommitAsync(string? repoName, string? branchName, bool includeContent = true);
         public Task<List<CommitEntity>?> GetAllCommitsContentless(string? repoName, string? branchName);
         public Task<CommitEntity?> GetOldestCommitAsync(string? repoName, string? branchName, bool includeContent = true);
+        public Task<CommitEntity?> GetLatestMergeCommitAsync(string repoName, string branchName, string mergedBranchName, bool includeContent = true);
     }
 }

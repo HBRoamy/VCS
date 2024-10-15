@@ -145,6 +145,53 @@ namespace VCS_API.DirectoryDB.Repositories
             return null;
         }
 
+        public async Task<CommitEntity?> GetLatestMergeCommitAsync(string repoName, string branchName, string mergedBranchName, bool includeContent = true)
+        {
+            try
+            {
+                Validations.ThrowIfNullOrWhiteSpace(branchName, repoName, mergedBranchName);
+
+                var searchTerm = $"{Constants.Constants.ItemAddressDelimiter}{mergedBranchName}{Constants.Constants.ItemAddressDelimiter}";
+                var commitEntryRow = await DirectoryDB.LastOrDefaultRowAsync(DBPaths.CommitsStorePath(repoName!, branchName!), row => row.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+                /*
+                 use DirectoryDB.LastOrDefaultRowAsync2 for a supposedly memory optimized approach.
+                 */
+                if (!string.IsNullOrWhiteSpace(commitEntryRow))
+                {
+                    var currentCommitObj = DeserializeRowEntry(commitEntryRow);
+                    if (currentCommitObj is not null)
+                    {
+                        var mergeCommitHash = currentCommitObj.BaseCommitAddress?.Split(Constants.Constants.ItemAddressDelimiter)[^1];//currentBranch#currentBranchHash#MergedBranch#MergedBranchHash
+
+
+                        if (string.IsNullOrWhiteSpace(mergeCommitHash))
+                        {
+                            throw new InvalidDataException("MergeCommitHash can't be null or empty");   
+                        }
+
+                        var mergeCommitObj = await GetCommitAsync(repoName, mergedBranchName, mergeCommitHash, includeContent);
+
+                        mergeCommitObj.RepoName = repoName;
+                        mergeCommitObj.BranchName = mergedBranchName;
+
+                        return mergeCommitObj;
+                    }
+                    else
+                    {
+                        throw new InvalidDataException("Current Commit was not found.");
+                    }
+                }
+
+                return await GetOldestCommitAsync(repoName, branchName);// If no merge commit present, return the first commit (which was created using the parent branch).This helps us in the comparison operation.
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occured in the method \'{nameof(GetLatestMergeCommitAsync)}\' " + ex.Message);
+            }
+
+            return null;
+        }
+
         public async Task<List<CommitEntity>?> GetAllCommitsContentless(string? repoName, string? branchName)//not supporting lists of contentful commits since there is no use case I can think of. Also It would be a crazy heavy overhead.
         {
             try

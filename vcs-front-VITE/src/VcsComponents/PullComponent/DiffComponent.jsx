@@ -202,7 +202,7 @@ export default function DiffComponent() {
                 message: commitMessage, // Use the commit message from the state
                 content: joinedLines
             };
-            await saveBranchContent(repoName, data.branchName, formData);
+            await saveBranchContent(repoName, data.branchName, formData, data.baseBranchCommitHash);
             window.location.reload();
         } catch (error) {
             setError("An error occurred while committing the changes.")
@@ -234,7 +234,7 @@ export default function DiffComponent() {
                                     Pull Request
                                 </button>
                                 : <>
-                                <span className='text-danger font-montserrat'>Merge Conflict</span>
+                                <span className='text-danger font-montserrat'>Code Conflict: Pull Changes from the base branch into the current branch.</span>
                                 </>}
                         </div>
                     }
@@ -305,7 +305,7 @@ export default function DiffComponent() {
                     <div>
                         {mergedLines.length > 0 ? (
                             <div className="mt-4 card card-body bg-default">
-                                <h4 className='text-light font-raleway'><svg fill="#fff" width="20" height="20" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><title>ionicons-v5-d</title><path d="M218.31,340.69A16,16,0,0,0,191,352v32H171a28,28,0,0,1-28-28V152a64,64,0,1,0-64-1.16V356a92.1,92.1,0,0,0,92,92h20v32a16,16,0,0,0,27.31,11.31l64-64a16,16,0,0,0,0-22.62ZM112,64A32,32,0,1,1,80,96,32,32,0,0,1,112,64Z" /><path d="M432,360.61V156a92.1,92.1,0,0,0-92-92H320V32a16,16,0,0,0-27.31-11.31l-64,64a16,16,0,0,0,0,22.62l64,64A16,16,0,0,0,320,160V128h20a28,28,0,0,1,28,28V360.61a64,64,0,1,0,64,0ZM400,448a32,32,0,1,1,32-32A32,32,0,0,1,400,448Z" /></svg> Commit New State</h4>
+                                <h6 className='text-light font-raleway'><svg fill="#fff" width="20" height="20" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><title>ionicons-v5-d</title><path d="M218.31,340.69A16,16,0,0,0,191,352v32H171a28,28,0,0,1-28-28V152a64,64,0,1,0-64-1.16V356a92.1,92.1,0,0,0,92,92h20v32a16,16,0,0,0,27.31,11.31l64-64a16,16,0,0,0,0-22.62ZM112,64A32,32,0,1,1,80,96,32,32,0,0,1,112,64Z" /><path d="M432,360.61V156a92.1,92.1,0,0,0-92-92H320V32a16,16,0,0,0-27.31-11.31l-64,64a16,16,0,0,0,0,22.62l64,64A16,16,0,0,0,320,160V128h20a28,28,0,0,1,28,28V360.61a64,64,0,1,0,64,0ZM400,448a32,32,0,1,1,32-32A32,32,0,0,1,400,448Z" /></svg> Pulling changes into <span className='badge text-bg-warning'>{data.branchName}</span> from <span className='badge text-bg-warning'>{data.baseBranchName}</span></h6>
                                 <table className="table table-dark table-hover mb-4">
                                     <tbody>
                                         {

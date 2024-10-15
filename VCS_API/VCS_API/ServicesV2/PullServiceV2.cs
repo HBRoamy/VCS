@@ -23,16 +23,20 @@ namespace VCS_API.ServicesV2
                 }
 
                 var parentBranchLatestCommitTask = commitServiceV2.GetLatestCommitAsync(repoName, parentBranchName);
-                var currentBranchFirstCommitTask = commitServiceV2.GetOldestCommitAsync(repoName, branchName);
+                // Find the latest commit in the current branch's commit history with a merge commit from the parent branch or the first commit (which was from the parent branch only)
+                var latestMergeCommitTask = commitServiceV2.GetLatestMergeCommitOrDefaultAsync(repoName, branchName, parentBranchName);
+                //Uncomment it if the new merge implmentation fails.
+                ///var currentBranchFirstCommitTask = commitServiceV2.GetOldestCommitAsync(repoName, branchName);
+
                 var currentBranchLatestCommitTask = commitServiceV2.GetLatestCommitAsync(repoName, branchName);
 
-                await Task.WhenAll(parentBranchLatestCommitTask, currentBranchFirstCommitTask, currentBranchLatestCommitTask);
+                await Task.WhenAll(parentBranchLatestCommitTask, latestMergeCommitTask, currentBranchLatestCommitTask);
 
                 var parentBranchLatestCommit = await parentBranchLatestCommitTask;
-                var currentBranchFirstCommit = await currentBranchFirstCommitTask;
+                var currentBranchLatestMergeCommit = await latestMergeCommitTask;
                 var currentBranchLatestCommit = await currentBranchLatestCommitTask;
 
-                Validations.ThrowIfNull(parentBranchLatestCommit, currentBranchFirstCommit, currentBranchLatestCommit);
+                Validations.ThrowIfNull(parentBranchLatestCommit, currentBranchLatestMergeCommit, currentBranchLatestCommit);
 
 
                 var comparisonResult = new DiffMergeEntity
@@ -48,21 +52,21 @@ namespace VCS_API.ServicesV2
                 };
 
                 var parentBranchLatestCommitContent = parentBranchLatestCommit?.Content?.CleanData();
-                var currentBranchFirstCommitContent = currentBranchFirstCommit?.Content.CleanData(); // find the latest common commit of both branches instead
+                var currentBranchLatestMergeCommitContent = currentBranchLatestMergeCommit?.Content.CleanData(); // find the latest common commit of both branches instead
                 var currentBranchLatestCommitContent = currentBranchLatestCommit?.Content.CleanData();
                 
                 // find the latest common commit
 
 
-                var currentBranchFirstCommitBaseHash = SplitAddress(currentBranchFirstCommit!.BaseCommitAddress!)[1];
+                var currentBranchLatestMergeCommitHash = currentBranchLatestMergeCommit!.Hash!;
                 // Potential merge conflict if parent branch is ahead of the current branch
-                if (!string.Equals(parentBranchLatestCommit?.Hash, currentBranchFirstCommitBaseHash, StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(parentBranchLatestCommit?.Hash, currentBranchLatestMergeCommitHash, StringComparison.OrdinalIgnoreCase))
                 {
                     //check how much the parent branch has changed since we created a branch from it. The current branch's first commit can be used as a base.
-                    var parentNewChanges = GenerateDiff(currentBranchFirstCommitContent, parentBranchLatestCommitContent).NewText.Lines;
+                    var parentNewChanges = GenerateDiff(currentBranchLatestMergeCommitContent, parentBranchLatestCommitContent).NewText.Lines;
 
                     //check how much the current branch has changed since we created it.
-                    var currentNewChanges = GenerateDiff(currentBranchFirstCommitContent, currentBranchLatestCommitContent).NewText.Lines;
+                    var currentNewChanges = GenerateDiff(currentBranchLatestMergeCommitContent, currentBranchLatestCommitContent).NewText.Lines;
                     int j = 0;
                     for (int i = 0; i < parentNewChanges.Count; i++)
                     {
