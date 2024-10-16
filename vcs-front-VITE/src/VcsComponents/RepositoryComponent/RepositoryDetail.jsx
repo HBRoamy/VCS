@@ -251,7 +251,7 @@ const RepositoryDetail = () => {
                 <button className="btn btn-sm btn-dark dropdown-toggle mb-2 float-end" data-bs-toggle="dropdown" aria-expanded="false">
                   {language}
                 </button>
-                <ul className="dropdown-menu dropdown-menu-dark p-0">
+                <ul className="dropdown-menu dropdown-menu-dark p-0" style={{ maxHeight: '500px', overflowY: 'auto' }}>
                   <input
                     type="text"
                     className="form-control form-control-sm mb-2 bg-dark text-light searchbox border-0"
