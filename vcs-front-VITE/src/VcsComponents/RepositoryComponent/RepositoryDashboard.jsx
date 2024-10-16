@@ -62,7 +62,7 @@ const RepositoryDashboard = () => {
                                 <span class="username"><a href="javascript:;">Harshit</a> <small></small></span>
                             </div>
                             <div class="timeline-content h6 font-montserrat">
-                                <p>
+                                <p className="overflow-scroll">
                                     <MarkdownBlock content={historyFragment.eventStatement} />
                                 </p>
                             </div>

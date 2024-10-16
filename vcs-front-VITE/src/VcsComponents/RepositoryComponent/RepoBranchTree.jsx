@@ -75,10 +75,6 @@ function RepoBranchTree() {
         return <p className="text-danger">{error}</p>;
     }
 
-    if (!treeData) {
-        return <div>Loading...</div>;
-    }
-
     const nodeSize = {
         x: '200',
         y: '200',
