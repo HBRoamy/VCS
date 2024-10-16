@@ -13,5 +13,6 @@
         public string? Timestamp { get; set; }
         public string? ChangeStorageAddress { get; set; } //stores the address of the file which contains the full changes introduced in the commit. Format datawarehouse\RepoName#BranchName\changes\CommitHash
         public string? Content { get; set; }
+        public bool IsMergeCommit { get; set; } = false;
     }
 }

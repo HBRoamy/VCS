@@ -36,7 +36,7 @@ namespace VCS_API.ServicesV2
                         var baseContent = baseCommitObject?.Content?.CleanData();
                         var newContent = commitEntity.Content?.CleanData();
 
-                        if (baseContent == newContent)
+                        if (!commitEntity.IsMergeCommit && baseContent == newContent)
                         {
                             throw new InvalidOperationException("Nothing new found that could be committed.");
                         }

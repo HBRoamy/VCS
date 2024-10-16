@@ -60,7 +60,7 @@ namespace VCS_API.ServicesV2
 
                 var currentBranchLatestMergeCommitHash = currentBranchLatestMergeCommit!.Hash!;
                 // Potential merge conflict if parent branch is ahead of the current branch
-                if (!string.Equals(parentBranchLatestCommit?.Hash, currentBranchLatestMergeCommitHash, StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(parentBranchLatestCommit?.Hash, currentBranchLatestMergeCommitHash))
                 {
                     //check how much the parent branch has changed since we created a branch from it. The current branch's first commit can be used as a base.
                     var parentNewChanges = GenerateDiff(currentBranchLatestMergeCommitContent, parentBranchLatestCommitContent).NewText.Lines;
