@@ -7,6 +7,7 @@
         public const string NullPlaceholder = "0/";
         public const string MasterBranchName = "Master";
         public const string RepositoryName = "{repoName}";
+        public const string BranchName = "{branchName}";
         public const string BaseBranchName = "{baseBranch}";
         public const string RepoAndBranchName = $"{Constants.RepositoryName}/Base/{Constants.BaseBranchName}";
         public const string RepoAndBranchCompare = "{repoName}/Compare/{branchName}";

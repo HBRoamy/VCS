@@ -1,4 +1,5 @@
-﻿using VCS_API.DirectoryDB.Helpers;
+﻿using System.Globalization;
+using VCS_API.DirectoryDB.Helpers;
 using VCS_API.DirectoryDB.Repositories.Interfaces;
 using VCS_API.Extensions;
 using VCS_API.Helpers;
@@ -106,6 +107,50 @@ namespace VCS_API.ServicesV2
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occured in the method \'{nameof(GetCommitAsync)}\' " + ex.Message);
+            }
+
+            return null;
+        }
+
+        public async Task<List<CommitEntity>?> GetAllCommitsAsync(string? repoName, string? branchName)
+        {
+            try
+            {
+                return await commitRepo.GetAllCommitsContentless(repoName, branchName);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occured in the method \'{nameof(GetAllCommitsAsync)}\' " + ex.Message);
+            }
+
+            return null;
+        }
+
+        public async Task<Dictionary<string,List<CommitEntity>>?> GetCommitsGroupedByDateAsync(string? repoName, string? branchName)
+        {
+            try
+            {
+                var allCommits = await GetAllCommitsAsync(repoName, branchName) ?? [];
+
+                Dictionary<string, List<CommitEntity>> groupedCommits = [];
+
+                foreach (var commit in allCommits)
+                {
+                    var date = commit.Timestamp!.Trim()[..10];
+
+                    if(!groupedCommits.ContainsKey(date))
+                    {
+                        groupedCommits[date] = [];
+                    }
+
+                    groupedCommits[date].Add(commit);
+                }
+
+                return groupedCommits;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occured in the method \'{nameof(GetAllCommitsAsync)}\' " + ex.Message);
             }
 
             return null;

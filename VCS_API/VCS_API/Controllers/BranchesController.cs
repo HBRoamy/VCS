@@ -3,7 +3,6 @@ using VCS_API.Helpers;
 using VCS_API.Models;
 using VCS_API.Models.RequestModels;
 using VCS_API.ServicesV2.Interfaces;
-using static VCS_API.ServicesV2.BranchServiceV2;
 
 namespace VCS_API.Controllers
 {
@@ -74,6 +73,22 @@ namespace VCS_API.Controllers
             catch (Exception ex)
             {
                 return BadRequest($"ERROR: An issue occured when committing. {ex.Message}");
+            }
+        }
+
+        [HttpGet($"{Constants.Constants.RepositoryName}/{Constants.Constants.BranchName}/CommitHistory")]
+        public async Task<ActionResult<DiffMergeEntity>> GetGroupedCommits(string repoName, string branchName)
+        {
+            try
+            {
+                var groupedCommits = await commitServiceV2?.GetCommitsGroupedByDateAsync(repoName, branchName)!;
+                Validations.ThrowIfNull(groupedCommits);
+
+                return Ok(groupedCommits);
+            }
+            catch (Exception ex)
+            {
+                return NotFound( ex.Message );
             }
         }
     }

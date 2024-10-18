@@ -7,6 +7,7 @@ import SyntaxHighlighterBlock from '../UtilComponents/SyntaxHighlighter';
 import ReadMeBlock from './ReadMeBlock'
 import * as supportedLanguages from 'react-syntax-highlighter/dist/esm/languages/prism';
 import './Styles/Misc.css';
+import CopyButton from '../UtilComponents/CopyButton';
 
 const RepositoryDetail = () => {
   const { repoName } = useParams(); // Extract repoName from URL params
@@ -115,14 +116,14 @@ const RepositoryDetail = () => {
       <div className='card card-body bg-dark text-light mb-4'>
         <div className='row font-montserrat'>
           <div className='col-lg-8 col-md-6 col-sm-12 text-lg-start text-md-start text-sm-center'>
-            <h1 className=''>
+            <h2 className=''>
               <span className='text-uppercase'>
                 {repository.name}
                 &nbsp;
               </span>
-            </h1>
+            </h2>
             <p>
-              <small>{repository.description}</small>
+              {repository.description}
             </p>
             <div className='badge bg-default mb-2'>
               Branch:&nbsp;
@@ -159,37 +160,33 @@ const RepositoryDetail = () => {
               </span>
             </div>
           </div>
-          <div className='col-lg-4 col-md-6 col-sm-12'>
+          <div className='col-lg-4 col-md-6 col-sm-12 m-0 p-0'>
             <div className='badge bg-default'>
               <table className="table table-dark text-white text-start">
                 <tbody>
                   <tr>
                     <td><b>Message:</b></td>
-                    <td>
-                      <span className="badge text-bg-danger">{currentCommit.message}</span>
+                    <td className='text-end'>
+                      <span className="badge text-bg-danger" title={currentCommit.message} role="button">{currentCommit.message.substring(0, 12)}</span>
                     </td>
                   </tr>
                   <tr>
                     <td><b>Timestamp:</b></td>
-                    <td>
-                      <span className="badge text-bg-danger" title={currentCommit.timestamp + ' IST'}>{currentCommit.timestamp.substring(0, 10)}</span>
+                    <td className='text-end'>
+                      <span className="badge text-bg-danger" title={currentCommit.timestamp + ' IST'} role="button">{currentCommit.timestamp.substring(0, 10)}</span>
                     </td>
                   </tr>
                   <tr>
                     <td className='pt-3'><b>Commit Hash:</b></td>
-                    <td>
-                      <span className="badge text-bg-danger" title={currentCommit.hash}>#{currentCommit.hash.substring(0, 7)}...</span>
-                      <button className='btn btn-sm bg-transparent' onClick={() => handleCopyClick(currentCommit.hash)}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-copy" className='text-light' viewBox="0 0 16 16">
-                          <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z" />
-                        </svg>
-                      </button>
+                    <td className='text-end'>
+                      <CopyButton text={currentCommit.hash} />
+                      <span className="badge text-bg-danger" title={currentCommit.hash} role="button">#{currentCommit.hash.substring(0, 7)}...</span>
                     </td>
                   </tr>
                 </tbody>
               </table>
               <span className='btn-group mt-1'>
-                <Link to={`/Repositories/` + repoName + '/timeline'} className="btn btn-sm btn-outline-warning font-raleway">
+                <Link to={`/Repositories/` + repoName + '/timeline'} className="btn btn-sm btn-outline-secondary font-raleway text-light">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock-history" viewBox="0 0 16 16">
                     <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976q.576.129 1.126.342zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .979.654l-.615.789a7 7 0 0 0-.418-.302zm1.834 1.79a7 7 0 0 0-.653-.796l.724-.69q.406.429.747.91zm.744 1.352a7 7 0 0 0-.214-.468l.893-.45a8 8 0 0 1 .45 1.088l-.95.313a7 7 0 0 0-.179-.483m.53 2.507a7 7 0 0 0-.1-1.025l.985-.17q.1.58.116 1.17zm-.131 1.538q.05-.254.081-.51l.993.123a8 8 0 0 1-.23 1.155l-.964-.267q.069-.247.12-.501m-.952 2.379q.276-.436.486-.908l.914.405q-.24.54-.555 1.038zm-.964 1.205q.183-.183.35-.378l.758.653a8 8 0 0 1-.401.432z" />
                     <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0z" />
@@ -197,7 +194,7 @@ const RepositoryDetail = () => {
                   </svg>
                   &nbsp; Repo TimeLine
                 </Link>
-                <Link to={`/Repositories/` + repoName + '/BranchTree'} className="btn btn-sm btn-outline-warning font-raleway">
+                <Link to={`/Repositories/` + repoName + '/BranchTree'} className="btn btn-sm btn-outline-secondary font-raleway text-light">
                   Branch Tree
                 </Link>
               </span>
@@ -278,6 +275,15 @@ const RepositoryDetail = () => {
                 <SyntaxHighlighterBlock content={currentCommit?.content} language={language} />
               </div>
               <hr />
+              <Link to={`/Repositories/${repoName}/${currentBranch}/CommitHistory`} className="btn btn-sm btn-secondary mt-1text-light font-raleway me-1 float-start">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-clock-history" viewBox="0 0 16 16">
+                  <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976q.576.129 1.126.342zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .979.654l-.615.789a7 7 0 0 0-.418-.302zm1.834 1.79a7 7 0 0 0-.653-.796l.724-.69q.406.429.747.91zm.744 1.352a7 7 0 0 0-.214-.468l.893-.45a8 8 0 0 1 .45 1.088l-.95.313a7 7 0 0 0-.179-.483m.53 2.507a7 7 0 0 0-.1-1.025l.985-.17q.1.58.116 1.17zm-.131 1.538q.05-.254.081-.51l.993.123a8 8 0 0 1-.23 1.155l-.964-.267q.069-.247.12-.501m-.952 2.379q.276-.436.486-.908l.914.405q-.24.54-.555 1.038zm-.964 1.205q.183-.183.35-.378l.758.653a8 8 0 0 1-.401.432z" />
+                  <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0z" />
+                  <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5" />
+                </svg>
+                &nbsp;
+                Commits
+              </Link>
               <button className="btn btn-sm text-bg-warning float-end" onClick={handleEditClick}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square mb-1" viewBox="0 0 16 16">
                   <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />

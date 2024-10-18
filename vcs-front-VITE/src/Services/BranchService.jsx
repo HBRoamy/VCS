@@ -20,7 +20,16 @@ export const getBranchDiff = async (repoName, branchName) => {
   try {
     return await get(`${BRANCHES_ENDPOINT}/${encodeURIComponent(repoName)}/Compare/${encodeURIComponent(branchName)}/v2`);
   } catch (error) {
-    console.error('Error fetching repository by name:', error);
+    console.error('Error fetching diff:', error);
+    throw error;
+  }
+};
+
+export const getRepoBranchCommitHistory = async (repoName, branchName) => {
+  try {
+    return await get(`${BRANCHES_ENDPOINT}/${encodeURIComponent(repoName)}/${encodeURIComponent(branchName)}/CommitHistory`);
+  } catch (error) {
+    console.error('Error fetching branch commit history: ', error);
     throw error;
   }
 };

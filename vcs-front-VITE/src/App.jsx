@@ -12,6 +12,7 @@ import UserInfo from './VcsComponents/UserComponent/UserInfo';
 import DiffComponent from './VcsComponents/PullComponent/DiffComponent';
 import RepoBranchTree from './VcsComponents/RepositoryComponent/RepoBranchTree';
 import SyntaxHighlighterBlock from './VcsComponents/UtilComponents/SyntaxHighlighter';
+import CommitHistory from './VcsComponents/PullComponent/CommitHistory';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
               <Route path="/About" element={<UserInfo />} />
               <Route path="/Compare/:repoName/:branchName" element={<DiffComponent />} />
               <Route path="/Repositories/:repoName/BranchTree" element={<RepoBranchTree />} />
+              <Route path="/Repositories/:repoName/:branchName/CommitHistory" element={<CommitHistory />} />
               <Route path="/Syntax" element={<SyntaxHighlighterBlock />} />
               <Route path="/NotFound" element={<NotFound />} />
               <Route path="*" element={<NotFound />} />

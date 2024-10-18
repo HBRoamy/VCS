@@ -5,12 +5,31 @@ import MarkdownBlock from '../../VcsComponents/UtilComponents/MarkdownBlock';
 export default function () {
 
     const featuresInDevelopment = `
-#### Upcoming features: 
-- Backend Stats Dashboard
-- Auth
-- Merge Feature
-- Pull Request Feature
-- Commit History
+
+<div class="card text-dark fw-bold bg-dark row">
+  <img src="/webpage_bg.jpg" class="card-img" alt="background">
+  <div class="card-img-overlay">
+    <h5 class="card-title">USER DEFINED ELEMENT</h5>
+    <div class="col">
+Upcoming features: 
+<ul class="list-group">
+  <li class="list-group-item">Backend Stats Dashboard</li>
+  <li class="list-group-item">Auth</li>
+  <li class="list-group-item">Merge Feature</li>
+  <li class="list-group-item">Pull Request Feature</li>
+  <li class="list-group-item">Commit History and frequency graph and heatmap</li>
+</ul>
+</div>
+<div class="col">
+NOTES: 
+<ul class="list-group list-group-flush">
+  <li class="list-group-item">Repo url should show branch name as well, if branch name is null, its master branch.</li>
+  <li class="list-group-item">Links to commits should take us to a view with the diff of the commit and its parent commit.</li>
+  <li class="list-group-item">A third item</li>
+</ul>
+</div>
+  </div>
+</div>
     `;
 
     return (
