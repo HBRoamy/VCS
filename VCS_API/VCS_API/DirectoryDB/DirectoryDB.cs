@@ -100,6 +100,29 @@ namespace VCS_API.DirectoryDB
             return false;
         }
 
+        /// File Share Modes: Use FileShare.Read when opening the file to ensure multiple readers can access the file at the same time without causing an access error:
+        /// using var reader = new StreamReader(File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read));
+        public static async IAsyncEnumerable<string> StreamRowsAsync(string filePath)
+        {
+            Validations.ThrowIfNullOrWhiteSpace(filePath);
+
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"No file present on path {filePath}");
+            }
+
+            using var reader = new StreamReader(filePath);
+
+            while (!reader.EndOfStream)
+            {
+                var line = await reader.ReadLineAsync();
+
+                if (string.IsNullOrWhiteSpace(line)) continue;
+
+                yield return line;
+            }
+        }
+
         public static async Task<string[]> FilterRowsAsync(string filePath, Func<string, bool> predicate)
         {
             Validations.ThrowIfNullOrWhiteSpace(filePath);

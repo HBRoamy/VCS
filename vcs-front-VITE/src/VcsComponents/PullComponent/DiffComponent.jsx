@@ -141,7 +141,9 @@ export default function DiffComponent() {
     const renderChanges = (change) => {
         return (
             <td className={getLineStyle(change.type)}>
-                {change.subPieces ? renderSubpieces(change.subPieces) : change.text}
+                <div className="preserve-spaces text-start">
+                    {change.subPieces ? renderSubpieces(change.subPieces) : change.text}
+                </div>
             </td>
         );
     };
@@ -238,7 +240,7 @@ export default function DiffComponent() {
                                 </>}
                         </div>
                     }
-                    <table className='table table-dark'>
+                    <table className='table table-dark shadow-md'>
                         <thead>
                             <tr className="text-light">
                                 {

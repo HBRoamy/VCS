@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
-import './Styles/TimeLine.css';
+import './Styles/RepoTimeLine.css';
 import { getRepositoryHistory } from '../../Services/RepoService';
 import MarkdownBlock from "../UtilComponents/MarkdownBlock";
 
@@ -50,8 +50,8 @@ const RepositoryDashboard = () => {
                 {history.map((historyFragment) => (
                     <li>
                         <div class="timeline-time">
-                            <span class="date">{historyFragment.timeStamp.substring(0, 10)}</span>
-                            <span class="time" title={historyFragment.timeStamp}>{historyFragment.timeStamp.substring(10, 16)}</span>
+                            <span class="date">{historyFragment.timestamp.substring(0, 10)}</span>
+                            <span class="time" title={historyFragment.timestamp}>{historyFragment.timestamp.substring(10, 16)}</span>
                         </div>
                         <div class="timeline-icon">
                             <a href="javascript:;">&nbsp;</a>

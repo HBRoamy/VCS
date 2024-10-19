@@ -36,3 +36,7 @@
     background: #f89c9c !important;
     color: #000000 !important;
 }
+
+.preserve-spaces {
+    white-space: pre-wrap; /* Maintains whitespace */
+}

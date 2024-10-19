@@ -2,7 +2,7 @@
 {
     public class HistoryFragment
     {
-        public string? TimeStamp { get; set; }
+        public string? Timestamp { get; set; }
         public string? EventStatement { get; set; }
     }
 }

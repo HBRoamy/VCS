@@ -36,19 +36,49 @@ namespace VCS_API.DirectoryDB.Repositories
             }
         }
 
-        public static async Task<List<HistoryFragment>?> GetRepoHistoryLogs(string repoName)
+        public static async Task<Dictionary<string, List<HistoryFragment>>?> GetRepoHistoryLogsV2(string repoName)
         {
             try
             {
                 Validations.ThrowIfNullOrWhiteSpace(repoName);
+                Dictionary<string, List<HistoryFragment>> groupedHistoryFrags = [];
 
-                return (await DirectoryDB.GetAllRowsAsync(DBPaths.RepoAuditLogsPath(repoName.ToUpper())))?.Select(row => DeserializeHistoryFrag(row)).ToList();
+                await foreach (var frag in DirectoryDB.StreamRowsAsync(DBPaths.RepoAuditLogsPath(repoName.ToUpper())))
+                {
+                    if (string.IsNullOrWhiteSpace(frag)) continue;
+
+                    var historyFrag = DeserializeHistoryFrag(frag);
+                    var dateKey = historyFrag.Timestamp!.Trim()[..10];
+
+                    if (!groupedHistoryFrags.ContainsKey(dateKey))
+                    {
+                        groupedHistoryFrags[dateKey] = [];
+                    }
+
+                    groupedHistoryFrags[dateKey].Add(historyFrag);
+                }
+
+                return groupedHistoryFrags;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Unable to read history due to an unexpected error: {ex.Message}");
             }
 
+            return null; // If something goes wrong, return null
+        }
+
+        public static async Task<List<HistoryFragment>?> GetRepoHistoryLogs(string repoName)
+        {
+            try
+            {
+                Validations.ThrowIfNullOrWhiteSpace(repoName);
+                return (await DirectoryDB.GetAllRowsAsync(DBPaths.RepoAuditLogsPath(repoName.ToUpper())))?.Select(row => DeserializeHistoryFrag(row)).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unable to read history due to an unexpected error: {ex.Message}");
+            }
             return null;
         }
 
@@ -59,7 +89,7 @@ namespace VCS_API.DirectoryDB.Repositories
 
             return new HistoryFragment
             {
-                TimeStamp = splitResult[0],
+                Timestamp = splitResult[0],
                 EventStatement = splitResult[1]
             };
         }

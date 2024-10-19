@@ -53,12 +53,27 @@ namespace VCS_API.Controllers
             return BadRequest("No such repo exists.");
         }
 
+        // TODO: Paginate it
+        [HttpGet($"{Constants.Constants.RepositoryName}/History/V2")]
+        public async Task<ActionResult<Dictionary<string, List<HistoryFragment>>?>> GetRepositoryHistoryV2([FromRoute] string repoName)
+        {
+            var repoHistory = await repoServiceV2.GetRepoHistoryAsyncV2(repoName);
+
+            if (repoHistory is not null)
+            {
+                return Ok(repoHistory);
+            }
+            else
+            {
+                return NotFound("The history could not be found. Please verify that its a valid repository.");
+            }
+        }
+
         [HttpGet($"{Constants.Constants.RepositoryName}/History")]
-        public async Task<ActionResult<List<HistoryFragment>>> GetRepositoryHistoryV2([FromRoute] string repoName)
+        public async Task<ActionResult<List<HistoryFragment>>> GetRepositoryHistoryNoGrouping([FromRoute] string repoName)
         {
             //fetches name, branches (integration with branch service), etc.
             var repoHistory = await repoServiceV2.GetRepoHistoryAsync(repoName);
-
             if (repoHistory is not null)
             {
                 return Ok(repoHistory);

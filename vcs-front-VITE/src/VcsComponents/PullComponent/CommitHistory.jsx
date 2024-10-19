@@ -47,13 +47,13 @@ export default function CommitHistory() {
             <h4 className='badge h4 font-montserrat text-bg-warning'>Repo: {repoName}</h4> <span className='text-light'>/</span> <h4 className='badge h4 font-montserrat text-bg-danger'> Branch: {branchName}</h4>
             {historyData && (
                 <div>
-                    <ul className="timeline text-light">
+                    <ul className="timeline2 text-light">
                         {Object.entries(historyData).map(([date, commits]) => (
-                            <li className="timeline-event" key={date}>
-                                <label className="timeline-event-icon"></label>
-                                <div className="timeline-event-copy">
+                            <li className="timeline-event2" key={date}>
+                                <label className="timeline-event-icon2"></label>
+                                <div className="timeline-event-copy2">
                                     {/* Display Date with formatted string */}
-                                    <p className="timeline-event-thumbnail font-montserrat">{formatDate(date)}</p>
+                                    <p className="timeline-event-thumbnail2 font-montserrat">{formatDate(date)}</p>
 
                                     {/* Display Commits for the Date */}
                                     {commits.map((commit) => (

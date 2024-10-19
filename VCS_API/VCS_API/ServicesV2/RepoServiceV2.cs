@@ -53,6 +53,22 @@ namespace VCS_API.ServicesV2
             return null;
         }
 
+        public async Task<Dictionary<string, List<HistoryFragment>>?> GetRepoHistoryAsyncV2(string repoName)
+        {
+            try
+            {
+                Validations.ThrowIfNullOrWhiteSpace(repoName);
+
+                return await AuditLogsRepo.GetRepoHistoryLogsV2(repoName);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occured in the method \'{nameof(GetRepoHistoryAsyncV2)}\' " + ex.Message);
+            }
+
+            return null;
+        }
+
         public async Task DeleteRepoAsync(string? repoName)
         {
             try
