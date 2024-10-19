@@ -2,6 +2,7 @@
 using VCS_API.Helpers;
 using VCS_API.Models;
 using VCS_API.Models.RequestModels;
+using VCS_API.Models.ResponseModels;
 using VCS_API.ServicesV2.Interfaces;
 
 namespace VCS_API.Controllers
@@ -12,7 +13,7 @@ namespace VCS_API.Controllers
     {
 
         [HttpGet($"{Constants.Constants.RepoAndBranchCompare}/v2")]
-        public async Task<ActionResult<DiffMergeEntity>> GetComparisonWithBaseV2(string repoName, string branchName)
+        public async Task<ActionResult<DiffComparisonEntity>> GetComparisonWithBaseV2(string repoName, string branchName)
         {
             var branchEntity = await branchServiceV2?.GetBranchAsync(branchName, repoName)!;
             Validations.ThrowIfNull(branchEntity);
@@ -77,7 +78,7 @@ namespace VCS_API.Controllers
         }
 
         [HttpGet($"{Constants.Constants.RepositoryName}/{Constants.Constants.BranchName}/CommitHistory")]
-        public async Task<ActionResult<DiffMergeEntity>> GetGroupedCommits(string repoName, string branchName)
+        public async Task<ActionResult<DiffComparisonEntity>> GetGroupedCommits(string repoName, string branchName)
         {
             try
             {
@@ -89,6 +90,33 @@ namespace VCS_API.Controllers
             catch (Exception ex)
             {
                 return NotFound( ex.Message );
+            }
+        }
+
+        [HttpGet($"{Constants.Constants.RepositoryName}/{Constants.Constants.BranchName}/{Constants.Constants.CommitHash}")]
+        public async Task<ActionResult<CommitViewResponse>> GetCommit(string repoName, string branchName, string? commitHash = null)
+        {
+            try
+            {
+                if (commitHash == null || string.IsNullOrWhiteSpace(commitHash))
+                {
+                    commitHash = (await commitServiceV2.GetLatestCommitAsync(repoName, branchName, includeContent: false))?.Hash;
+                }
+
+                Validations.ThrowIfNullOrWhiteSpace(commitHash);
+
+                var commitResponse = await pullServiceV2.GetCommitedDiffWithParentCommit(repoName, branchName, commitHash!);
+
+                if (commitResponse is null)
+                {
+                    return BadRequest("Commit couldn't be found.");
+                }
+
+                return Ok(commitResponse);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
             }
         }
     }

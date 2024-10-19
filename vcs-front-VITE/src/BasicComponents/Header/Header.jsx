@@ -1,6 +1,4 @@
-import { Route, Routes, Link } from 'react-router-dom';
-import Home from '../Home/Home';
-import RepositoryList from '../../VcsComponents/RepositoryComponent/RepositoryList';
+import { Link } from 'react-router-dom';
 import './Styles/Style.css';
 
 export default function Header() {
@@ -16,7 +14,6 @@ export default function Header() {
                             d="m14.12 6.576 1.715.858c.22.11.22.424 0 .534l-7.568 3.784a.598.598 0 0 1-.534 0L.165 7.968a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.659z" />
                     </svg> <span className='Text-Color-Transition'>VCS</span></h1>
                 </button>
-
             </header>
 
             <div className="offcanvas offcanvas-start" data-bs-theme="dark" tabindex="-1" id="vcs-sidebar" aria-labelledby="offcanvasLabel">

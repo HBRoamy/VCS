@@ -1,4 +1,4 @@
-import { get, post} from './APIService';
+import { get, post } from './APIService';
 
 const BRANCHES_ENDPOINT = '/api/v1/Branches';
 
@@ -30,6 +30,15 @@ export const getRepoBranchCommitHistory = async (repoName, branchName) => {
     return await get(`${BRANCHES_ENDPOINT}/${encodeURIComponent(repoName)}/${encodeURIComponent(branchName)}/CommitHistory`);
   } catch (error) {
     console.error('Error fetching branch commit history: ', error);
+    throw error;
+  }
+};
+
+export const getCommitAsync = async (repoName, branchName, commitHash) => {
+  try {
+    return await get(`${BRANCHES_ENDPOINT}/${encodeURIComponent(repoName)}/${encodeURIComponent(branchName)}/${commitHash ?? ''}`);
+  } catch (error) {
+    console.error('Error fetching the commit: ', error);
     throw error;
   }
 };

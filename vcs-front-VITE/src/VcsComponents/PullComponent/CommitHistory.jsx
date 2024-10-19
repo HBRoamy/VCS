@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { getRepoBranchCommitHistory } from '../../Services/BranchService';
+import { formatDate } from '../UtilComponents/Commons';
 import CopyButton from '../UtilComponents/CopyButton'
 import './Styles/CommitHistoryStyles.css';
 
@@ -40,21 +41,6 @@ export default function CommitHistory() {
         return <p className='text-light'>{error}</p>;
     }
 
-    // Function to format the date as "Day MonthAbbr, Year"
-    const formatDate = (dateString) => {
-        // Assuming dateString is in "DD-MM-YYYY" format
-        const [day, month, year] = dateString.split('-');  // Split the date into day, month, year
-        const formattedDateString = `${year}-${month}-${day}`;  // Rearrange into "YYYY-MM-DD"
-
-        const date = new Date(formattedDateString);  // Create a new Date object in the recognized format
-
-        return date.toLocaleDateString('en-IN', {
-            day: 'numeric',
-            month: 'short',  // Abbreviated month (e.g., Jan, Feb)
-            year: 'numeric'
-        });
-    };
-
     return (
         <>
             <h2 className='h2 font-raleway text-light'>Commits History</h2>
@@ -71,9 +57,11 @@ export default function CommitHistory() {
 
                                     {/* Display Commits for the Date */}
                                     {commits.map((commit) => (
-                                        <div key={commit.hash} className='text-start card card-body text-bg-dark mt-2 shadow-lg' style={{border: '1px solid rgba(255, 255, 255, 0.2)'}}>
+                                        <div key={commit.hash} className='text-start card card-body text-bg-dark mt-2 shadow-lg' style={{ border: '1px solid rgba(255, 255, 255, 0.2)' }}>
                                             <div className='row m-0 p-0 card-header'>
-                                                <span className='h6 font-montserrat text-nowrap col m-0 p-0' title={commit.message}>{commit.message.length > 28 ? commit.message.substring(0, 28) + '...' : commit.message}</span>
+                                                <Link to={`/Repositories/${commit.repoName}/${commit.branchName}/${commit.hash}`} className="m-0 p-0 link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
+                                                    <span className='h6 font-montserrat text-nowrap col m-0 p-0' title={commit.message}>{commit.message.length > 28 ? commit.message.substring(0, 28) + '...' : commit.message}</span>
+                                                </Link>
                                                 <span className='col p-0'>
                                                     <span className='float-end'>
                                                         <span className="badge text-bg-warning" title={commit.hash}>#{commit.hash.substring(0, 7)}...</span>
@@ -81,7 +69,7 @@ export default function CommitHistory() {
                                                     </span>
                                                 </span>
                                             </div>
-                                            <span className=''><small>Commited on <span title={commit.timestamp} className='badge text-bg-danger'>{formatDate(commit.timestamp.substring(0, 10))}</span></small></span>
+                                            <span className=''><small>Commited on <span title={commit.timestamp} className='badge text-bg-danger' role="button">{formatDate(commit.timestamp.substring(0, 10))}</span></small></span>
                                         </div>
                                     ))}
                                 </div>

@@ -9,6 +9,7 @@
         public const string RepositoryName = "{repoName}";
         public const string BranchName = "{branchName}";
         public const string BaseBranchName = "{baseBranch}";
+        public const string CommitHash = "{commitHash}";
         public const string RepoAndBranchName = $"{Constants.RepositoryName}/Base/{Constants.BaseBranchName}";
         public const string RepoAndBranchCompare = "{repoName}/Compare/{branchName}";
     }

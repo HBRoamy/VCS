@@ -4,13 +4,10 @@ import MarkdownBlock from '../../VcsComponents/UtilComponents/MarkdownBlock';
 
 export default function () {
 
+    //   <img src="/webpage_bg.jpg" class="card-img" alt="background">
     const featuresInDevelopment = `
-
-<div class="card text-dark fw-bold bg-dark row">
-  <img src="/webpage_bg.jpg" class="card-img" alt="background">
-  <div class="card-img-overlay">
-    <h5 class="card-title">USER DEFINED ELEMENT</h5>
-    <div class="col">
+<div class="card fw-bold bg-dark row">
+<div class="col">
 Upcoming features: 
 <ul class="list-group">
   <li class="list-group-item">Backend Stats Dashboard</li>
@@ -28,7 +25,6 @@ NOTES:
   <li class="list-group-item">A third item</li>
 </ul>
 </div>
-  </div>
 </div>
     `;
 
@@ -54,15 +50,17 @@ NOTES:
                     </div>
                 </div>
             </div>
-            <div className='row'>
-                <div className='col'>
-                    <div className=' card bg-default p-2'>
-                        <div className='card-body bg-dark text-start'>
-                            <MarkdownBlock classes={'text-light'} content={featuresInDevelopment} />
+            {
+                false && <div className='row'>
+                    <div className='col'>
+                        <div className=' card bg-default p-2'>
+                            <div className='card-body bg-dark text-start'>
+                                <MarkdownBlock classes={'text-light'} content={featuresInDevelopment} />
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            }
         </div>
     );
 }

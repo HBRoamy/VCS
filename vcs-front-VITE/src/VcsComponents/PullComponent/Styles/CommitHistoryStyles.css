@@ -78,7 +78,7 @@ body {
   -webkit-transform: rotate(45deg);
   transform: rotate(45deg);
   background-color: black;
-  outline: 10px solid white;
+  outline: 6px solid white;
   display: block;
   margin: 0.5em 0.5em 0.5em -0.5em;
   position: absolute;

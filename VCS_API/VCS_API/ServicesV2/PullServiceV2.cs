@@ -5,12 +5,13 @@ using VCS_API.DirectoryDB.Helpers;
 using VCS_API.Helpers;
 using VCS_API.ServicesV2.Interfaces;
 using VCS_API.Models;
+using VCS_API.Models.ResponseModels;
 
 namespace VCS_API.ServicesV2
 {
     public class PullServiceV2(ICommitServiceV2 commitServiceV2) : IPullServiceV2
     {
-        public async Task<DiffMergeEntity?> GetSideBySideComparisonForCommit(string? repoName, string? branchName, string? parentBranchName)
+        public async Task<DiffComparisonEntity?> GetSideBySideComparisonForCommit(string? repoName, string? branchName, string? parentBranchName)// TODO: CHECK if parent branch is needed here or not OR shall it be any branch and not parent branch?
         {
             try
             {
@@ -39,7 +40,7 @@ namespace VCS_API.ServicesV2
                 Validations.ThrowIfNull(parentBranchLatestCommit, currentBranchLatestMergeCommit, currentBranchLatestCommit);
 
 
-                var comparisonResult = new DiffMergeEntity
+                var comparisonResult = new DiffComparisonEntity
                 {
                     IsMergeable = true,//default
                     OldChanges = [],
@@ -54,7 +55,7 @@ namespace VCS_API.ServicesV2
                 var parentBranchLatestCommitContent = parentBranchLatestCommit?.Content?.CleanData();
                 var currentBranchLatestMergeCommitContent = currentBranchLatestMergeCommit?.Content.CleanData(); // find the latest common commit of both branches instead
                 var currentBranchLatestCommitContent = currentBranchLatestCommit?.Content.CleanData();
-                
+
                 // find the latest common commit
 
 
@@ -76,13 +77,13 @@ namespace VCS_API.ServicesV2
                             var rightLine = currentNewChanges[i];
                             int maxLength = Math.Max(parentNewChanges.Count, currentNewChanges.Count);
 
-                            if 
+                            if
                             (
-                                ( leftLine.Type.Equals(ChangeType.Inserted) && rightLine.Type.Equals(ChangeType.Inserted) && leftLine.Text != rightLine.Text) ||
-                                ( leftLine.Type.Equals(ChangeType.Modified) && rightLine.Type.Equals(ChangeType.Modified) && leftLine.Text != rightLine.Text) ||
-                                ( leftLine.Type.Equals(ChangeType.Modified) && !rightLine.Type.Equals(ChangeType.Modified) )||
-                                ( leftLine.Type.Equals(ChangeType.Deleted) && !rightLine.Type.Equals(ChangeType.Deleted) ) ||
-                                ( leftLine.Type.Equals(ChangeType.Imaginary) && !rightLine.Type.Equals(ChangeType.Imaginary) )
+                                (leftLine.Type.Equals(ChangeType.Inserted) && rightLine.Type.Equals(ChangeType.Inserted) && leftLine.Text != rightLine.Text) ||
+                                (leftLine.Type.Equals(ChangeType.Modified) && rightLine.Type.Equals(ChangeType.Modified) && leftLine.Text != rightLine.Text) ||
+                                (leftLine.Type.Equals(ChangeType.Modified) && !rightLine.Type.Equals(ChangeType.Modified)) ||
+                                (leftLine.Type.Equals(ChangeType.Deleted) && !rightLine.Type.Equals(ChangeType.Deleted)) ||
+                                (leftLine.Type.Equals(ChangeType.Imaginary) && !rightLine.Type.Equals(ChangeType.Imaginary))
                             )
                             {
                                 // Add a new bool property to mark the line as a conflict
@@ -107,7 +108,7 @@ namespace VCS_API.ServicesV2
                         }
                     }
 
-                    if(!(comparisonResult.IsMergeable ?? false))
+                    if (!(comparisonResult.IsMergeable ?? false))
                     {
                         comparisonResult.OldChanges = parentNewChanges;
                         comparisonResult.NewChanges = currentNewChanges;
@@ -141,39 +142,58 @@ namespace VCS_API.ServicesV2
             return null; // an exceptional case
         }
 
-        private void HandleMissingLines(DiffPiece parentLine, DiffPiece currentLine, DiffMergeEntity comparisonResult)
-        {
-            if (parentLine == null && currentLine != null)
-            {
-                // Line added in the current branch but not in the parent branch
-                comparisonResult.OldChanges?.Add(new DiffPiece { Text = "", Type = ChangeType.Unchanged });
-                comparisonResult.NewChanges?.Add(currentLine);
-                comparisonResult.IsMergeable = false;
-            }
-            else if (currentLine == null && parentLine != null)
-            {
-                // Line removed in the current branch but exists in the parent branch
-                comparisonResult.OldChanges?.Add(parentLine);
-                comparisonResult.NewChanges?.Add(new DiffPiece { Text = "", Type = ChangeType.Unchanged });
-                comparisonResult.IsMergeable = false;
-            }
-        }
-
         private static SideBySideDiffModel GenerateDiff(string? oldString, string? newString)
         {
             var diffBuilder = new SideBySideDiffBuilder(new Differ());
-            return diffBuilder.BuildDiffModel(oldString, newString);
+            return diffBuilder.BuildDiffModel(oldString ?? string.Empty, newString ?? string.Empty);
         }
-        private static string[] SplitAddress(string address)
+
+        public async Task<CommitViewResponse?> GetCommitedDiffWithParentCommit(string repoName, string branchName, string commitHash)
         {
-            return address.Split(Constants.Constants.ItemAddressDelimiter);
+            try
+            {
+                var requiredCommit = await commitServiceV2.GetCommitAsync(repoName, branchName, commitHash);
+
+                if (requiredCommit is null)
+                {
+                    Console.WriteLine("Commit not found!");
+                    return null;
+                }
+
+                var addressPieces = requiredCommit.BaseCommitAddress?.Split(Constants.Constants.ItemAddressDelimiter);
+
+                var parentCommit = new CommitEntity();
+                if (addressPieces != null && addressPieces[0] != Constants.Constants.NullPlaceholder)
+                {
+                    var parentBranchName = requiredCommit.BaseCommitAddress?.Split(Constants.Constants.ItemAddressDelimiter)[0];
+                    var parentBranchCommitHash = requiredCommit.BaseCommitAddress?.Split(Constants.Constants.ItemAddressDelimiter)[1];
+                    parentCommit = await commitServiceV2.GetCommitAsync(repoName, parentBranchName, parentBranchCommitHash);
+                }
+
+                var diffResult = GenerateDiff(parentCommit?.Content, requiredCommit.Content);
+
+                return new CommitViewResponse
+                {
+                    RepoName = requiredCommit.RepoName,
+                    BranchName = requiredCommit.BranchName,
+                    BaseBranchName = parentCommit?.BranchName,
+                    BaseBranchCommitHash = parentCommit?.Hash,
+                    BranchCommitHash = requiredCommit.Hash,
+                    Message = requiredCommit.Message,
+                    Timestamp = requiredCommit.Timestamp,
+                    OldChanges = diffResult.OldText.Lines,
+                    NewChanges = diffResult.NewText.Lines,
+                    IsMergeable = false// so that we dont trigger the pull feature
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occured in the method \'{nameof(GetCommitedDiffWithParentCommit)}\' " + ex.Message);
+            }
+
+            Console.WriteLine("Reached the end of the comparison method. Could possibly be an issue.");
+
+            return null; // an exceptional case
         }
-        /*
-         * Test this as well, to determine how fast the parallel ops were
-          var comparisonResult = new DiffMergeEntity();
-        var parentBranchLatestCommitContent = parentBranchLatestCommit?.Content?.CleanData();
-        var currentBranchFirstCommitContent = currentBranchFirstCommit?.Content.CleanData();
-        var currentBranchLatestCommitContent = currentBranchLatestCommit?.Content.CleanData();
-         */
     }
 }

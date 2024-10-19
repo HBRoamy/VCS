@@ -3,7 +3,7 @@
     public class CommitEntity
     {
         /// <summary>
-        /// BaseCommitAddress = BranchName#CommitHash
+        /// BaseCommitAddress = BranchName#CommitHash or ParentBranchName#ParentCommitHash#MergeBranchName#MergeCommitHash
         /// </summary>
         public string? BaseCommitAddress { get; set; }//the commit hash of the commit on top of which this commit did the changes
         public string? RepoName { get; set; }
