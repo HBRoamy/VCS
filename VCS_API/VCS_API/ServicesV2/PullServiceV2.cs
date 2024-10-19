@@ -145,7 +145,7 @@ namespace VCS_API.ServicesV2
         private static SideBySideDiffModel GenerateDiff(string? oldString, string? newString)
         {
             var diffBuilder = new SideBySideDiffBuilder(new Differ());
-            return diffBuilder.BuildDiffModel(oldString ?? string.Empty, newString ?? string.Empty);
+            return diffBuilder.BuildDiffModel(oldString ?? string.Empty, newString ?? string.Empty, ignoreWhitespace: false);
         }
 
         public async Task<CommitViewResponse?> GetCommitedDiffWithParentCommit(string repoName, string branchName, string commitHash)

@@ -60,7 +60,7 @@ export default function CommitView() {
         };
 
         fetchDiff();
-    }, [repoName, branchName]);
+    }, [repoName, branchName, commitHash]);
 
     const getLineStyle = (type) => {
         switch (type) {
@@ -134,8 +134,8 @@ export default function CommitView() {
                     <span className=''>
                         <div className='w-75 mx-auto text-start card card-body text-bg-dark mt-2 shadow-lg' style={{ border: '1px solid rgba(255, 255, 255, 0.2)' }}>
                             <div className='row m-0 p-0 card-header'>
-                                <span className='h4 font-montserrat text-nowrap col m-0 p-0' title={data.message}>
-                                    { data.message.length > 45 ? data.message.substring(0, 45) + '...' : data.message }
+                                <span className='h4 font-montserrat text-wrap col m-0 p-0' title={data.message}>
+                                    { data.message.length > 35 ? data.message.substring(0, 35) + '...' : data.message }
                                 </span>
                                 <span className='col p-0'>
                                     <span className='float-end'>
@@ -177,7 +177,7 @@ export default function CommitView() {
                             <tbody>
                                 {
                                     Array.from({ length: maxLength }).map((_, index) => (
-                                        <tr key={index}>
+                                        <tr key={index} className='text-start'>
                                             {oldChanges[index] ? renderChanges(oldChanges[index]) : <td></td>}
                                             {newChanges[index] ? renderChanges(newChanges[index]) : <td></td>}
                                         </tr>

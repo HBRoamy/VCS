@@ -19,8 +19,8 @@ namespace VCS_API.DirectoryDB.Repositories
 
                 await DirectoryDB.WriteToFileAsync(DBPaths.RepoStorePath(), repoEntryRow, canCreateDirectory: true);
                 var createdRepo = DeserializeRowEntry(repoEntryRow)!;
-                createdRepo.ReadMeBody = await UpdateReadMe(repositoryEntity?.Name!, "# ReadMe", canCreateDirectory: true);
                 AuditLogsRepo.Log(repositoryEntity?.Name, $"Created the repository \'{repositoryEntity?.Name}\'.");
+                createdRepo.ReadMeBody = await UpdateReadMe(repositoryEntity?.Name!, "# ReadMe", canCreateDirectory: true);
 
                 return createdRepo;
             }

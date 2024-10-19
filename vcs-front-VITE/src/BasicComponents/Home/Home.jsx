@@ -14,7 +14,6 @@ Upcoming features:
   <li class="list-group-item">Auth</li>
   <li class="list-group-item">Merge Feature</li>
   <li class="list-group-item">Pull Request Feature</li>
-  <li class="list-group-item">Commit History and frequency graph and heatmap</li>
 </ul>
 </div>
 <div class="col">
