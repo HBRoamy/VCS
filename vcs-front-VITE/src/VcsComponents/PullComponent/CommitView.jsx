@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'; // Import useParams from rea
 import { getCommitAsync } from '../../Services/BranchService';
 import CopyButton from '../UtilComponents/CopyButton'
 import { formatDate } from '../UtilComponents/Commons';
+import Icon from '../UtilComponents/Icons';
 
 export default function CommitView() {
     const { repoName, branchName, commitHash } = useParams();
@@ -131,11 +132,11 @@ export default function CommitView() {
 
     return (
         <div>
-            <h2 className='h4 font-raleway text-light'>Commit Info</h2>
+            <h2 className='h4 font-raleway text-light'><span className='text-warning'>Commit</span> Info</h2>
             <div className='row'>
                 <div className='col'>
                     <span className=''>
-                        <div className='w-75 mx-auto text-start card card-body text-bg-dark mt-2 shadow-lg' style={{ border: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                        <div className='w-75 mx-auto text-start card card-body text-bg-dark mt-2 shadow-lg border-dim'>
                             <div className='row m-0 p-0 card-header'>
                                 <span className='h4 font-montserrat text-wrap col m-0 p-0' title={data.message}>
                                     {data.message.length > 35 ? data.message.substring(0, 35) + '...' : data.message}
@@ -170,6 +171,16 @@ export default function CommitView() {
                         <span className='h4 fw-bold text-light font-mon'>
                             Changes
                         </span>
+                        {
+                            data.message.startsWith("Merged commit")
+                                ?
+                                <div>
+                                    <Icon type="info" classes='text-info mb-1 me-1' />
+                                    <span className='text-bg-danger badge'>Merge resolution commits sometimes may NOT contain any change.</span>
+                                </div>
+                                :
+                                <></>
+                        }
                         <table className='table table-dark mt-2 shadow-md'>
                             <thead className='mb-2'>
                                 <tr className="">

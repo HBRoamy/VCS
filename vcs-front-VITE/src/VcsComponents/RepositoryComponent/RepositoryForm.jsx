@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './Styles/RepositoryStyles.css';
 import { useNavigate } from 'react-router-dom';
 import { createRepository } from '../../Services/RepoService';
+import Icon from '../UtilComponents/Icons';
 
 const RepositoryForm = () => {
     // Define state variables for form fields
@@ -14,7 +15,7 @@ const RepositoryForm = () => {
     const MIN_REPO_NAME_LENGTH = 3;
     const MIN_DESCRIPTION_LENGTH = 10;
     const navigate = useNavigate();
-    
+
     // Check if the form fields meet the validation criteria
     const isFormValid = () => {
         return repoName.length >= MIN_REPO_NAME_LENGTH && description.length >= MIN_DESCRIPTION_LENGTH;
@@ -32,7 +33,7 @@ const RepositoryForm = () => {
 
         // Create a form data object
         const formData = {
-            name : repoName,
+            name: repoName,
             description,
             isPrivate,
         };
@@ -76,9 +77,7 @@ const RepositoryForm = () => {
                                     <tr>
                                         <td>
                                             <label htmlFor="repoName" className="form-label">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" className="bi bi-archive" viewBox="0 0 16 16">
-                                                    <path d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 12.5V5a1 1 0 0 1-1-1zm2 3v7.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V5zm13-3H1v2h14zM5 7.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5" />
-                                                </svg>
+                                                <Icon type="archive" />
                                             </label>
                                         </td>
                                         <td>
@@ -96,10 +95,7 @@ const RepositoryForm = () => {
                                     <tr>
                                         <td>
                                             <label htmlFor="description" className="form-label">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" className="bi bi-card-text" viewBox="0 0 16 16">
-                                                    <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2z" />
-                                                    <path d="M3 5.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M3 8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 8m0 2.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5" />
-                                                </svg>
+                                                <Icon type="card" />
                                             </label>
                                         </td>
                                         <td>

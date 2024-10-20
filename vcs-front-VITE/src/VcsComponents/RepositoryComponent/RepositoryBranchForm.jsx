@@ -10,7 +10,6 @@ export default function RepositoryBranchForm({ repoName, baseBranchName, onBranc
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        // Create a form data object
         const formData = {
             name: newBranchName,
         };

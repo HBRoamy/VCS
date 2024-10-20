@@ -57,7 +57,7 @@ export default function CommitHistory() {
 
                                     {/* Display Commits for the Date */}
                                     {commits.map((commit) => (
-                                        <div key={commit.hash} className='text-start card card-body text-bg-dark mt-2 shadow-lg' style={{ border: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                                        <div key={commit.hash} className='text-start card card-body text-bg-dark mt-2 shadow-lg border-dim'>
                                             <div className='row m-0 p-0 card-header'>
                                                 <Link to={`/Repositories/${commit.repoName}/${commit.branchName}/${commit.hash}`} className="m-0 p-0 link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
                                                     <span className='h6 font-montserrat text-nowrap col m-0 p-0' title={commit.message}>{commit.message.length > 28 ? commit.message.substring(0, 28) + '...' : commit.message}</span>

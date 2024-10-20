@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { getBranchDiff } from '../../Services/BranchService';
 import { saveBranchContent } from '../../Services/BranchService';
 import './Styles/Style.css';
 import MarkdownBlock from "../UtilComponents/MarkdownBlock";
+import Icon from '../UtilComponents/Icons';
 
 export default function DiffComponent() {
     const { repoName, branchName } = useParams();
@@ -148,14 +149,6 @@ export default function DiffComponent() {
         );
     };
 
-    const createMarkdownStatement = (branchName, branchCommit, baseBranchName, baseBranchCommit) => {
-        return `Comparing __*${branchName}*__ [commit \`${branchCommit.substring(0, 7)}\`...] with __*${baseBranchName}*__ [commit \`${baseBranchCommit.substring(0, 7)}\`...]`;
-    }
-
-    const renderMarkdown = (value, classes = '') => {
-        return <MarkdownBlock classes={classes} content={value} />
-    }
-
     const handleCheckboxChange = (index, side) => {
         setSelectedLines((prev) => {
             const updatedSelection = [...prev]; // Create a new array
@@ -222,21 +215,40 @@ export default function DiffComponent() {
         <div>
             {data && (
                 <>
-                    <div className='card card-body bg-default badge mb-2'>
-                        <MarkdownBlock classes={'text-light'} content={createMarkdownStatement(data.branchName, data.branchCommitHash, data.baseBranchName, data.baseBranchCommitHash)} />
+                    <div className='card card-body p-4 bg-dark shadow-lg badge mb-2 text-wrap border-dim'>
+                        Comparing
+                        <span className='ms-1 fst-italic special'>
+                            {data.branchName}
+                        </span>
+                        <span className='ms-1 me-1'>
+                            [commit &nbsp;
+                            <Link title={data.branchCommitHash} to={`/Repositories/${data.repoName}/${data.branchName}/${data.branchCommitHash}`} className="m-0 p-0  special">
+                                {data.branchCommitHash.substring(0, 7)}
+                            </Link>
+                            ...]
+                        </span>
+                        with
+                        <span className='ms-1 fst-italic special'>
+                            {data.baseBranchName}
+                        </span>
+                        <span className='ms-1'>
+                            [commit &nbsp;
+                            <Link title={data.baseBranchCommitHash} to={`/Repositories/${data.repoName}/${data.baseBranchName}/${data.baseBranchCommitHash}`} className="m-0 p-0  special">
+                                {data.baseBranchCommitHash.substring(0, 7)}
+                            </Link>
+                            ...]
+                        </span>
                     </div>
                     {
                         <div className="text-light m-2">
                             {isMergeable ?
                                 <button className='btn btn-success btn-sm badge position-relative'>
-                                    <svg fill="#fff" width="20" height="20" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M385,224a64,64,0,0,0-55.33,31.89c-42.23-1.21-85.19-12.72-116.21-31.33-32.2-19.32-49.71-44-52.15-73.35a64,64,0,1,0-64.31.18V360.61a64,64,0,1,0,64,0V266.15c44.76,34,107.28,52.38,168.56,53.76A64,64,0,1,0,385,224ZM129,64A32,32,0,1,1,97,96,32,32,0,0,1,129,64Zm0,384a32,32,0,1,1,32-32A32,32,0,0,1,129,448ZM385,320a32,32,0,1,1,32-32A32,32,0,0,1,385,320Z" />
-                                    </svg>
-                                    &nbsp;
+                                    <Icon type="merge" classes='me-1' />
                                     Pull Request
                                 </button>
-                                : <>
-                                <span className='text-danger font-montserrat'>Code Conflict: Pull Changes from the base branch into the current branch.</span>
+                                :
+                                <>
+                                    <span className='text-danger font-montserrat'>Code Conflict: Pull Changes from the base branch into the current branch.</span>
                                 </>}
                         </div>
                     }
@@ -245,9 +257,9 @@ export default function DiffComponent() {
                             <tr className="text-light">
                                 {
                                     !isMergeable ? (
-                                        <th><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-slash-minus" viewBox="0 0 16 16">
-                                            <path d="m1.854 14.854 13-13a.5.5 0 0 0-.708-.708l-13 13a.5.5 0 0 0 .708.708M4 1a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 4 1m5 11a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5A.5.5 0 0 1 9 12" />
-                                        </svg></th>
+                                        <th>
+                                            <Icon type="plusMinus" />
+                                        </th>
                                     ) : (<></>)
                                 }
 
@@ -256,9 +268,9 @@ export default function DiffComponent() {
 
                                 {
                                     !isMergeable ? (
-                                        <th><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-slash-minus" viewBox="0 0 16 16">
-                                            <path d="m1.854 14.854 13-13a.5.5 0 0 0-.708-.708l-13 13a.5.5 0 0 0 .708.708M4 1a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 4 1m5 11a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5A.5.5 0 0 1 9 12" />
-                                        </svg></th>
+                                        <th>
+                                            <Icon type="plusMinus" />
+                                        </th>
                                     ) : (<></>)
                                 }
                             </tr>
@@ -304,10 +316,13 @@ export default function DiffComponent() {
                             )}
                         </tbody>
                     </table>
+                    <div className='text-bg-warning badge font-montserrat text-wrap'><span className='text-danger'>CAUTION:</span> Conflict viewer relies on a 3rd-party library for generating diff and is unreliable. Consider resolving manually.</div>
                     <div>
                         {mergedLines.length > 0 ? (
                             <div className="mt-4 card card-body bg-default">
-                                <h6 className='text-light font-raleway'><svg fill="#fff" width="20" height="20" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><title>ionicons-v5-d</title><path d="M218.31,340.69A16,16,0,0,0,191,352v32H171a28,28,0,0,1-28-28V152a64,64,0,1,0-64-1.16V356a92.1,92.1,0,0,0,92,92h20v32a16,16,0,0,0,27.31,11.31l64-64a16,16,0,0,0,0-22.62ZM112,64A32,32,0,1,1,80,96,32,32,0,0,1,112,64Z" /><path d="M432,360.61V156a92.1,92.1,0,0,0-92-92H320V32a16,16,0,0,0-27.31-11.31l-64,64a16,16,0,0,0,0,22.62l64,64A16,16,0,0,0,320,160V128h20a28,28,0,0,1,28,28V360.61a64,64,0,1,0,64,0ZM400,448a32,32,0,1,1,32-32A32,32,0,0,1,400,448Z" /></svg> Pulling changes into <span className='badge text-bg-warning'>{data.branchName}</span> from <span className='badge text-bg-warning'>{data.baseBranchName}</span></h6>
+                                <h6 className='text-light font-raleway'>
+                                    <Icon type="pushPull" classes="me-1 mb-1" />
+                                    Pulling changes into <span className='badge text-bg-warning'>{data.branchName}</span> from <span className='badge text-bg-warning'>{data.baseBranchName}</span></h6>
                                 <table className="table table-dark table-hover mb-4">
                                     <tbody>
                                         {
@@ -337,18 +352,10 @@ export default function DiffComponent() {
                                                     <label for="CommitMessageBox" className='text-dark font-raleway'>Describe the change</label>
                                                 </span>
                                                 <button className="btn btn-sm bg-dimmed-approve" onClick={handleSubmitClick} disabled={loading}>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                                                        fill="currentColor" class="bi bi-check2" viewBox="0 0 16 16">
-                                                        <path
-                                                            d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" />
-                                                    </svg>
+                                                    <Icon type="check" />
                                                 </button>
                                                 <button className="btn btn-sm bg-dimmed-decline" onClick={handleCancelClick} disabled={loading}>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                        fill="currentColor" class="bi mb-1 bi-x-lg" viewBox="0 0 16 16">
-                                                        <path
-                                                            d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
-                                                    </svg>
+                                                    <Icon type="cross" classes='mb-1' />
                                                 </button>
                                             </div>
                                         </div>

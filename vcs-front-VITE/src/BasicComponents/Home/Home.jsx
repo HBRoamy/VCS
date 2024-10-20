@@ -14,6 +14,9 @@ Upcoming features:
   <li class="list-group-item">Auth</li>
   <li class="list-group-item">Merge Feature</li>
   <li class="list-group-item">Pull Request Feature</li>
+  <li class="list-group-item">Add reverts on commits which open a pull. think more on it.</li>
+  <li class="list-group-item">Add repo pin feature</li>
+  <li class="list-group-item">Add branch url feature instead of loading master everytime</li>
 </ul>
 </div>
 <div class="col">

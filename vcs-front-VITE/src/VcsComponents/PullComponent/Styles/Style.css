@@ -40,3 +40,13 @@
 .preserve-spaces {
     white-space: pre-wrap; /* Maintains whitespace */
 }
+
+.special {
+    color: #d63384 !important;
+    text-decoration: none !important;
+}
+
+.border-dim
+{
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
