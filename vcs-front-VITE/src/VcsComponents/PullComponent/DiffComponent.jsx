@@ -141,8 +141,8 @@ export default function DiffComponent() {
 
     const renderChanges = (change) => {
         return (
-            <td className={getLineStyle(change.type)}>
-                <div className="preserve-spaces text-start">
+            <td className={getLineStyle(change.type)} class='col-6'>
+                <div className="preserve-spaces text-start text-wrap">
                     {change.subPieces ? renderSubpieces(change.subPieces) : change.text}
                 </div>
             </td>
@@ -328,7 +328,7 @@ export default function DiffComponent() {
                                         {
                                             mergedLines.map((line, index) => (
                                                 <tr key={index}>
-                                                    <td>
+                                                    <td className='text-start'>
                                                         {line.text}
                                                     </td>
                                                 </tr>

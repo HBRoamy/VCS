@@ -1,41 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import MarkdownBlock from '../UtilComponents/MarkdownBlock';
-import { saveRepoReadMe } from '../../Services/RepoService';
-import Icon from '../UtilComponents/Icons';
+import MarkdownBlock from './MarkdownBlock';
+import Icon from './Icons';
 
-const ReadMeBlock = ({ repoName, readMeContent }) => {
+const DescriptionBlock = ({ content, onUpdate }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [currentReadMeBody, setCurrentReadMeBody] = useState(readMeContent);
     const [isPreviewMode, setIsPreviewMode] = useState(false);
     const [editError, setEditError] = useState(null); // New state for save error
     const [isEditing, setIsEditing] = useState(false);
-    const [editContent, setEditContent] = useState(readMeContent);
+    const [editedContent, setEditedContent] = useState(content);
     const [showToast, setShowToast] = useState(false);
 
     useEffect(() => {
-        const InitializeReadme = async () => {
+        const InitializeDescription = async () => {
             try {
                 setLoading(true);
-                setCurrentReadMeBody(currentReadMeBody)
-                setEditContent(currentReadMeBody);
-                console.warn('current readme ' + currentReadMeBody)
+                setEditedContent(content);
+                console.warn('render triggered.')
                 setError(null); // Clear any previous errors
                 setEditError(null); // Clear any previous save errors
             } catch (error) {
-                setError('Failed to fetch the readme');
-                console.error('Error fetching the readme:', error);
+                setError('Failed to fetch the description');
             } finally {
                 setLoading(false);
             }
         };
 
-        InitializeReadme();
-    }, [repoName, readMeContent]); // Dependency array to refetch if repoName changes
+        InitializeDescription();
+    }, [content]);
 
 
     if (loading) {
-        return <p className='text-light'>Loading ReadMe...</p>;
+        return <p className='text-light'>Loading...</p>;
     }
 
     if (error) {
@@ -45,47 +41,39 @@ const ReadMeBlock = ({ repoName, readMeContent }) => {
     const handleEditClick = () => {
         setIsEditing(true);
     };
+
     const handleSaveClick = async () => {
         try {
             setEditError(null); // Clear any previous save errors
-            const formData = editContent;
-            var updatedReadMeBody = await saveRepoReadMe(repoName, formData);
-            console.warn('new readme saved: ' + updatedReadMeBody)
-            setCurrentReadMeBody(updatedReadMeBody);
-            setEditContent(updatedReadMeBody);
+
+            await onUpdate(editedContent);
+
             setIsEditing(false);
             setIsPreviewMode(false)
         } catch (error) {
             setEditError('Failed to save content. Please try again.');
-            console.error('Error saving content:', error);
         }
     };
 
     const handleCancelClick = () => {
         // Revert the content to the original state
-        setEditContent(currentReadMeBody);
+        setEditedContent(content);
         setIsPreviewMode(false)
         setIsEditing(false);
         setEditError(null); // Clear any previous save errors
     };
 
     const alignLeft = () => {
-        const alignedContent = editContent
+        const alignedContent = editedContent
             .split('\n') // Split the text by lines
             .map(line => line.trimStart()) // Remove leading spaces/tabs from each line
             .join('\n'); // Join the lines back together
-        setEditContent(alignedContent); // Set the aligned content back
+        setEditedContent(alignedContent); // Set the aligned content back
     };
-
-
 
     return (
         <>
             <div className="card card-body mt-2 code-bg text-light text-start">
-                <span className='font-raleway text-light text-wrap badge'>
-                    <Icon type="info" classes='text-info mb-1 me-1' />
-                    ReadMe's are repository-level only and are <span className='text-warning'>not source-controlled.</span>
-                </span>
                 {editError && <p className="text-danger">{editError}</p>}
                 {isEditing ? (
                     <div className='bg-default'>
@@ -128,7 +116,7 @@ const ReadMeBlock = ({ repoName, readMeContent }) => {
                                         </div>
                                     </div>
                                 )}
-                                <button className="btn btn-sm save-color border-0 bg-dark" onClick={handleSaveClick} disabled={editContent === readMeContent}>
+                                <button className="btn btn-sm save-color border-0 bg-dark" onClick={handleSaveClick} disabled={editedContent === content}>
                                     <Icon type="check" />
                                 </button>
 
@@ -141,15 +129,15 @@ const ReadMeBlock = ({ repoName, readMeContent }) => {
                             isPreviewMode ? (
                                 <div className='p-2'>
                                     <div className='card-body bg-dark'>
-                                        {editContent && <MarkdownBlock classes={'text-light font-montserrat'} content={editContent} />}
+                                        {editedContent && <MarkdownBlock classes={'text-light font-montserrat'} content={editedContent} />}
                                     </div>
                                 </div>
                             ) : (
                                 <textarea
                                     className="form-control text-light bg-default border border-0"
                                     rows="10"
-                                    value={editContent}
-                                    onChange={(e) => setEditContent(e.target.value)}
+                                    value={editedContent}
+                                    onChange={(e) => setEditedContent(e.target.value)}
                                     style={{
                                         outline: 'none',
                                         boxShadow: 'none',
@@ -168,7 +156,7 @@ const ReadMeBlock = ({ repoName, readMeContent }) => {
                                     <button className="btn btn-sm text-light float-end" onClick={handleEditClick} title='Edit'>
                                         <Icon type="edit" classes='mb-1' />
                                     </button>
-                                    {repoName && <MarkdownBlock classes={'text-light font-montserrat overflow-scroll'} content={currentReadMeBody} />}
+                                    {content && <MarkdownBlock classes={'text-light font-montserrat'} content={content} />}
                                 </div>
                             </div>
                         </div>
@@ -179,4 +167,4 @@ const ReadMeBlock = ({ repoName, readMeContent }) => {
     )
 }
 
-export default ReadMeBlock;
+export default DescriptionBlock;

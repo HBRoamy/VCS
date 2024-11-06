@@ -108,10 +108,6 @@ const RepositoryDetail = () => {
     setLanguage(lang);
   }
 
-  const handleCopyClick = (textToCopy) => {
-    navigator.clipboard.writeText(textToCopy);
-  }
-
   return (
     <>
       <div className='card card-body bg-dark text-light mb-4'>
@@ -260,7 +256,7 @@ const RepositoryDetail = () => {
                   }
                 </ul>
               </span>
-              <div className='rounded bg-dark p-2'>
+              <div className='rounded bg-dark p-2' style={{ minHeight: 80 }}>
                 <SyntaxHighlighterBlock content={currentCommit?.content} language={language} />
               </div>
               <hr />

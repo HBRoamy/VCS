@@ -59,11 +59,11 @@ export default function CommitHistory() {
                                     {commits.map((commit) => (
                                         <div key={commit.hash} className='text-start card card-body text-bg-dark mt-2 shadow-lg border-dim'>
                                             <div className='row m-0 p-0 card-header'>
-                                                <Link to={`/Repositories/${commit.repoName}/${commit.branchName}/${commit.hash}`} className="m-0 p-0 link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
-                                                    <span className='h6 font-montserrat text-nowrap col m-0 p-0' title={commit.message}>{commit.message.length > 28 ? commit.message.substring(0, 28) + '...' : commit.message}</span>
+                                                <Link to={`/Repositories/${commit.repoName}/${commit.branchName}/${commit.hash}`} className="col-lg-8 col-md-6 col-sm-12 m-0 p-0 link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
+                                                    <span className='h6 font-montserrat text-wrap m-0 p-0' title={commit.message}>{commit.message.length > 24 ? commit.message.substring(0, 24) + '...' : commit.message}</span>
                                                 </Link>
-                                                <span className='col p-0'>
-                                                    <span className='float-end'>
+                                                <span className='col-lg-4 col-md-6 col-sm-12 p-0'>
+                                                    <span className='float-end text-nowrap'>
                                                         <span className="badge text-bg-warning" title={commit.hash}>#{commit.hash.substring(0, 7)}...</span>
                                                         <CopyButton text={commit.hash} />
                                                     </span>

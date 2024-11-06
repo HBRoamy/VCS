@@ -39,7 +39,7 @@ namespace VCS_API.DirectoryDB.Repositories
                 Validations.ThrowIfNullOrWhiteSpace(repoName);
 
                 var searchTerm = repoName + Constants.Constants.StandardColumnDelimiter; // this helps us eliminate the case when there are repos present with common prefix
-                var repoEntryRow = await DirectoryDB.FirstOrDefaultRowAsync(DBPaths.RepoStorePath(), x => x.StartsWith(searchTerm));
+                var repoEntryRow = await DirectoryDB.FirstOrDefaultRowAsync(DBPaths.RepoStorePath(), x => x.StartsWith(searchTerm, StringComparison.OrdinalIgnoreCase));
 
                 if(!string.IsNullOrWhiteSpace(repoEntryRow))
                 {

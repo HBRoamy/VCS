@@ -132,14 +132,20 @@ export default function CommitView() {
 
     return (
         <div>
-            <h2 className='h4 font-raleway text-light'><span className='text-warning'>Commit</span> Info</h2>
+            <h2 className='h4 font-raleway text-light'>
+                <span className='text-warning'>Commit</span> Info
+            </h2>
             <div className='row'>
                 <div className='col'>
                     <span className=''>
                         <div className='w-75 mx-auto text-start card card-body text-bg-dark mt-2 shadow-lg border-dim'>
                             <div className='row m-0 p-0 card-header'>
                                 <span className='h4 font-montserrat text-wrap col m-0 p-0' title={data.message}>
-                                    {data.message.length > 35 ? data.message.substring(0, 35) + '...' : data.message}
+                                    {
+                                        data.message.length > 35
+                                            ? data.message.substring(0,35)
+                                            : data.message
+                                    }
                                 </span>
                                 <span className='col p-0'>
                                     <span className='float-end'>

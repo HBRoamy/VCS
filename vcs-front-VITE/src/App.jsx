@@ -11,9 +11,9 @@ import RepositoryDashboard from './VcsComponents/RepositoryComponent/RepositoryD
 import UserInfo from './VcsComponents/UserComponent/UserInfo';
 import DiffComponent from './VcsComponents/PullComponent/DiffComponent';
 import RepoBranchTree from './VcsComponents/RepositoryComponent/RepoBranchTree';
-import SyntaxHighlighterBlock from './VcsComponents/UtilComponents/SyntaxHighlighter';
 import CommitHistory from './VcsComponents/PullComponent/CommitHistory';
 import CommitView from './VcsComponents/PullComponent/CommitView';
+import Sandbox from './VcsComponents/UtilComponents/sandbox';
 
 function App() {
   return (
@@ -34,7 +34,7 @@ function App() {
               <Route path="/Repositories/:repoName/BranchTree" element={<RepoBranchTree />} />
               <Route path="/Repositories/:repoName/:branchName/CommitHistory" element={<CommitHistory />} />
               <Route path="/Repositories/:repoName/:branchName/:commitHash" element={<CommitView />} />
-              <Route path="/Syntax" element={<SyntaxHighlighterBlock />} />
+              <Route path="/Sandbox" element={<Sandbox />} />
               <Route path="/NotFound" element={<NotFound />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
